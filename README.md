@@ -2,9 +2,12 @@
 
 App to check some data and stats on Hardcover.app.
 
-TBD:
+Very early WIP.
 
-## Checks
+## Features
+
+### Checks
+
 - [ ] TBR lists check
   - [ ] read books on TBR lists
   - [ ] unread books on multiple TBR lists
@@ -13,9 +16,12 @@ TBD:
 - [ ] Books without type (Book, Novella, Light Novel)
 
 
-## Stats
-- [ ] % of books read owned vs not (optional followup - check lists like Library for origin)
+### Stats And Info
 
+- [ ] Series finished vs incomplete - also take into account read all main books vs all including novellas.
+- [ ] % of books read owned vs not 
+  - [ ] followup - check lists like Library for more data
 
-## Other
+### Other
+
 - [ ] Export results fo each feature as markdown.
