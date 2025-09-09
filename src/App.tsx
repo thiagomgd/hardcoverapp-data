@@ -1,5 +1,5 @@
 import "./App.css";
-import AddToken from "./AddToken";
+import AddToken from "./components/AddToken";
 
 function App() {
   return (
