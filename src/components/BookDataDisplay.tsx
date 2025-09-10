@@ -8,6 +8,7 @@ interface BookDataDisplayProps {
 const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [checksFilter, setChecksFilter] = useState<string>("none");
   const [sortBy, setSortBy] = useState<
     "title" | "author" | "rating" | "dateAdded"
   >("title");
@@ -21,7 +22,42 @@ const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
           book.author.toLowerCase().includes(searchTerm.toLowerCase()));
       const matchesStatus =
         statusFilter === "all" || book.status === statusFilter;
-      return matchesSearch && matchesStatus;
+
+      // Checks filter logic
+      let matchesChecks = true;
+      if (checksFilter !== "none") {
+        const allLists = book.lists
+          ? book.lists
+              .split(",")
+              .map((list) => list.trim())
+              .filter((list) => list.length > 0)
+          : [];
+        const tbrLists = allLists.filter((list) => list.startsWith("TBR:"));
+
+        switch (checksFilter) {
+          case "read-on-tbr":
+            matchesChecks = book.status === "Read" && tbrLists.length > 0;
+            break;
+          case "multiple-tbr":
+            matchesChecks = tbrLists.length > 1;
+            break;
+          case "owned-not-read-no-tbr":
+            matchesChecks =
+              book.owned && book.status !== "Read" && tbrLists.length === 0;
+            break;
+          case "read-no-rating-review":
+            matchesChecks =
+              book.status === "Read" &&
+              book.rating === 0 &&
+              (!book.review || book.review.trim() === "") &&
+              book.genres.toLowerCase().indexOf("graphic novel") === -1;
+            break;
+          default:
+            matchesChecks = true;
+        }
+      }
+
+      return matchesSearch && matchesStatus && matchesChecks;
     })
     .sort((a, b) => {
       let aValue: string | number;
@@ -150,6 +186,26 @@ const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
             <option value="Want to Read">Want to Read</option>
             <option value="Currently Reading">Currently Reading</option>
             <option value="Stopped">Stopped</option>
+          </select>
+
+          <select
+            value={checksFilter}
+            onChange={(e) => setChecksFilter(e.target.value)}
+            className="filter-select"
+          >
+            <option value="none">None</option>
+            <option value="read-on-tbr">
+              Read books that are on at least one TBR list
+            </option>
+            <option value="multiple-tbr">
+              Books that are in more than 1 TBR list
+            </option>
+            <option value="owned-not-read-no-tbr">
+              Owned books that are not read, and are not in any TBR list
+            </option>
+            <option value="read-no-rating-review">
+              Read books with no rating or review (skip Graphic Novels)
+            </option>
           </select>
 
           <select
