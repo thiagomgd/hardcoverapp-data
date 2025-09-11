@@ -2,6 +2,7 @@ import { useState } from "react";
 import "./App.css";
 import CsvUploader from "./components/CsvUploader";
 import BookDataDisplay from "./components/BookDataDisplay";
+import ApiTest from "./components/ApiTest";
 import type { CsvUploadResult } from "./types";
 
 function App() {
@@ -28,6 +29,7 @@ function App() {
       </header>
 
       <main className="app-main">
+        <ApiTest />
         {!uploadedData ? (
           <CsvUploader onDataLoaded={handleDataLoaded} />
         ) : (
