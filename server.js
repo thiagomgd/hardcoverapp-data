@@ -21,13 +21,95 @@ fastify.get('/api/health', async (request, reply) => {
 });
 
 fastify.get('/api/books', async (request, reply) => {
-  // Sample book data - you can replace this with your actual data source
-  return {
-    books: [
-      { id: 1, title: 'Sample Book 1', author: 'Author 1' },
-      { id: 2, title: 'Sample Book 2', author: 'Author 2' }
-    ]
-  };
+  const { token, userID } = request.query;
+  
+  // Use environment variable if no token provided (for local development)
+  const authToken = token || process.env.HARDCOVER_TOKEN;
+  
+  if (!authToken) {
+    return reply.status(400).send({
+      error: 'User token is required',
+      message: 'Please provide a token parameter or set HARDCOVER_TOKEN environment variable'
+    });
+  }
+
+  if (!userID) {
+    return reply.status(400).send({
+      error: 'User ID is required',
+      message: 'Please provide a userID parameter'
+    });
+  }
+
+  try {
+    const allBooks = [];
+    let offset = 0;
+    const limit = 100;
+
+    // Fetch all pages until we have all books
+    while (true) {
+      const variables = { userID, offset, limit };
+      
+      const data = await graphqlRequest(HARDCOVER_API_URL, GET_USER_BOOKS_QUERY, variables, {
+        'Authorization': `Bearer ${authToken}`,
+        'Content-Type': 'application/json'
+      });
+
+      if (!data.list_books || !Array.isArray(data.list_books)) {
+        return reply.status(404).send({
+          error: 'No books found',
+          message: `No books found for user ID: ${userID}`
+        });
+      }
+
+      const currentPageBooks = data.list_books.map(lb => ({
+        ...lb.book,
+        edition: lb.edition,
+        list: lb.list
+      }));
+      allBooks.push(...currentPageBooks);
+
+      // If we got fewer books than the limit, we've reached the end
+      if (currentPageBooks.length < limit) {
+        break;
+      }
+
+      offset += limit;
+    }
+
+    return {
+      user_books: {
+        success: true,
+        books: allBooks,
+        count: allBooks.length
+      }
+    };
+
+  } catch (error) {
+    fastify.log.error('Error fetching user books:', error);
+    
+    // Handle GraphQL errors
+    if (error.response && error.response.errors) {
+      return reply.status(400).send({
+        error: 'GraphQL API error',
+        message: 'Error from Hardcover API',
+        details: error.response.errors
+      });
+    }
+
+    // Handle authentication errors
+    if (error.response && error.response.status === 401) {
+      return reply.status(401).send({
+        error: 'Authentication failed',
+        message: 'Invalid or expired token'
+      });
+    }
+
+    return reply.status(500).send({
+      error: 'Internal server error',
+      message: 'Failed to fetch user books',
+      details: error.message
+    });
+  }
 });
 
 // Hardcover GraphQL API endpoint
@@ -44,11 +126,40 @@ const GET_OWNED_BOOKS_QUERY = gql`
           id
           title
         }
-      }
-      list_books_aggregate {
-        aggregate {
-          count
+        edition {
+          pages
+          edition_format
+          edition_information
+          audio_seconds
+          id
         }
+      }
+    }
+  }
+`;
+
+// GraphQL query to get all books for a specific user
+const GET_USER_BOOKS_QUERY = gql`
+  query GetUserBooks($userID: Int!, $offset: Int!, $limit: Int!) {
+    list_books(where: { list: { user_id: { _eq: $userID } } }, offset: $offset, limit: $limit, order_by: { created_at: desc }) {
+      book {
+        id
+        title
+        author
+        isbn
+        published_date
+        cover_image_url
+      }
+      edition {
+        pages
+        edition_format
+        edition_information
+        audio_seconds
+        id
+      }
+      list {
+        id
+        name
       }
     }
   }
@@ -88,7 +199,6 @@ fastify.get('/api/owned', async (request, reply) => {
     const allBooks = [];
     let offset = 0;
     const limit = 100;
-    let totalCount = 0;
     let ownedList = null;
 
     // Fetch all pages until we have all books
@@ -110,7 +220,6 @@ fastify.get('/api/owned', async (request, reply) => {
       // Get the owned list (first time we fetch it)
       if (!ownedList) {
         ownedList = data.lists[0];
-        totalCount = ownedList.list_books_aggregate.aggregate.count;
       }
 
       const currentPageBooks = ownedList.list_books.map(lb => lb.book);
@@ -118,11 +227,6 @@ fastify.get('/api/owned', async (request, reply) => {
 
       // If we got fewer books than the limit, we've reached the end
       if (currentPageBooks.length < limit) {
-        break;
-      }
-
-      // If we've fetched all books according to the total count, we're done
-      if (allBooks.length >= totalCount) {
         break;
       }
 
@@ -136,9 +240,7 @@ fastify.get('/api/owned', async (request, reply) => {
         name: ownedList.name
       },
       books: allBooks,
-      count: allBooks.length,
-      totalCount: totalCount,
-      pagesFetched: Math.ceil(allBooks.length / limit)
+      count: allBooks.length
     };
 
   } catch (error) {

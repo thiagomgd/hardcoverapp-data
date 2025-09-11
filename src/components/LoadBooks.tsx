@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useHardcoverBooks } from "../utils/useHardcoverBooks";
 
 interface OwnedBooksData {
   success: boolean;
@@ -23,49 +23,18 @@ interface LoadBooksProps {
 }
 
 const LoadBooks: React.FC<LoadBooksProps> = ({ userId, onBooksLoaded }) => {
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [booksData, setBooksData] = useState<OwnedBooksData | null>(null);
+  const {
+    data: booksData,
+    isLoading,
+    error,
+    refetch,
+  } = useHardcoverBooks(userId, onBooksLoaded);
 
-  const loadOwnedBooks = useCallback(async () => {
-    if (!userId) {
-      setError("User ID is required");
-      return;
-    }
+  const handleRetry = () => {
+    refetch();
+  };
 
-    try {
-      setLoading(true);
-      setError(null);
-
-      // Note: In a real app, you'd want to get the token from user authentication
-      // For now, we'll let the server use the environment variable
-      const response = await fetch(
-        `/api/owned?userID=${encodeURIComponent(userId)}`,
-      );
-      const data: OwnedBooksData = await response.json();
-
-      if (response.ok && data.success) {
-        setBooksData(data);
-        onBooksLoaded(data);
-      } else {
-        setError(data.error || "Failed to load owned books");
-      }
-    } catch (err) {
-      setError("Network error: Failed to load owned books");
-      console.error("Error loading owned books:", err);
-    } finally {
-      setLoading(false);
-    }
-  }, [userId]);
-
-  // Load books when component mounts or userId changes
-  useEffect(() => {
-    if (userId) {
-      loadOwnedBooks();
-    }
-  }, [userId, loadOwnedBooks]);
-
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="load-books">
         <p>Loading your owned books...</p>
@@ -76,23 +45,21 @@ const LoadBooks: React.FC<LoadBooksProps> = ({ userId, onBooksLoaded }) => {
   if (error) {
     return (
       <div className="load-books">
-        <p style={{ color: "red" }}>Error: {error}</p>
-        <button onClick={loadOwnedBooks}>Retry</button>
+        <p style={{ color: "red" }}>Error: {error.message}</p>
+        <button onClick={handleRetry}>Retry</button>
       </div>
     );
   }
 
   return (
     <div className="load-books">
-      <button onClick={loadOwnedBooks}>Load Owned Books</button>
+      <button onClick={handleRetry}>Load Owned Books</button>
       {booksData && booksData.success && (
         <div>
           <p>
             Loaded {booksData.count} owned books from "{booksData.list?.name}"
             list
           </p>
-          <p>Total books in list: {booksData.totalCount}</p>
-          <p>Pages fetched: {booksData.pagesFetched}</p>
         </div>
       )}
     </div>
