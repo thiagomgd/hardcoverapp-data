@@ -1,30 +1,34 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import CsvUploader from "./components/CsvUploader";
-import BookDataDisplay from "./components/BookDataDisplay";
-import ApiTest from "./components/ApiTest";
-import type { CsvUploadResult } from "./types";
+import LoadBooks from "./components/LoadBooks";
 
 interface User {
   username: string;
   id: string;
 }
 
+interface OwnedBooksData {
+  success: boolean;
+  list?: {
+    id: string;
+    name: string;
+  };
+  books?: Array<{
+    id: string;
+    title: string;
+  }>;
+  count?: number;
+  totalCount?: number;
+  pagesFetched?: number;
+  error?: string;
+  message?: string;
+}
+
 function App() {
-  const [uploadedData, setUploadedData] = useState<CsvUploadResult | null>(
-    null,
-  );
+  const [userBookData, setUserData] = useState<OwnedBooksData | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [userLoading, setUserLoading] = useState(true);
   const [userError, setUserError] = useState<string | null>(null);
-
-  const handleDataLoaded = (result: CsvUploadResult) => {
-    setUploadedData(result);
-  };
-
-  const handleReset = () => {
-    setUploadedData(null);
-  };
 
   // Fetch user information on app load
   useEffect(() => {
@@ -52,6 +56,11 @@ function App() {
     fetchUser();
   }, []);
 
+  // Handler for when books are loaded
+  const handleBooksLoaded = (booksData: OwnedBooksData) => {
+    setUserData(booksData);
+  };
+
   return (
     <div className="app">
       <header className="app-header">
@@ -67,23 +76,23 @@ function App() {
             Welcome, <strong>{user.username}</strong> (ID: {user.id})
           </p>
         )}
+        {user && (
+          <LoadBooks userId={user.id} onBooksLoaded={handleBooksLoaded} />
+        )}
       </header>
 
       <main className="app-main">
-        <ApiTest />
-        {!uploadedData ? (
+        {/* <ApiTest /> */}
+        {/* {!uploadedData ? (
           <CsvUploader onDataLoaded={handleDataLoaded} />
-        ) : (
-          <div className="data-view">
-            <div className="data-header">
-              <h2>Your Book Collection</h2>
-              <button onClick={handleReset} className="reset-button">
-                Upload New File
-              </button>
-            </div>
-            <BookDataDisplay data={uploadedData} />
+        ) : ( */}
+        <div className="data-view">
+          <div className="data-header">
+            <h2>Your Book Collection</h2>
           </div>
-        )}
+          {/* <BookDataDisplay data={uploadedData} /> */}
+        </div>
+        {/* )} */}
       </main>
     </div>
   );
