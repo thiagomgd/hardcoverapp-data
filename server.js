@@ -54,6 +54,16 @@ const GET_OWNED_BOOKS_QUERY = gql`
   }
 `;
 
+// GraphQL query to get current user information
+const GET_USER_QUERY = gql`
+  query User {
+    me {
+      username
+      id
+    }
+  }
+`;
+
 fastify.get('/api/owned', async (request, reply) => {
   const { token, userID } = request.query;
   
@@ -154,6 +164,65 @@ fastify.get('/api/owned', async (request, reply) => {
     return reply.status(500).send({
       error: 'Internal server error',
       message: 'Failed to fetch owned books',
+      details: error.message
+    });
+  }
+});
+
+fastify.get('/api/user', async (request, reply) => {
+  const { token } = request.query;
+  
+  // Use environment variable if no token provided (for local development)
+  const authToken = token || process.env.HARDCOVER_TOKEN;
+  
+  if (!authToken) {
+    return reply.status(400).send({
+      error: 'User token is required',
+      message: 'Please provide a token parameter or set HARDCOVER_TOKEN environment variable'
+    });
+  }
+
+  try {
+    const data = await graphqlRequest(HARDCOVER_API_URL, GET_USER_QUERY, {}, {
+      'Authorization': `Bearer ${authToken}`,
+      'Content-Type': 'application/json'
+    });
+
+    if (!data.me) {
+      return reply.status(404).send({
+        error: 'User not found',
+        message: 'No user information found for this token'
+      });
+    }
+
+    return {
+      success: true,
+      user: data.me[0]
+    };
+
+  } catch (error) {
+    fastify.log.error('Error fetching user information:', error);
+    
+    // Handle GraphQL errors
+    if (error.response && error.response.errors) {
+      return reply.status(400).send({
+        error: 'GraphQL API error',
+        message: 'Error from Hardcover API',
+        details: error.response.errors
+      });
+    }
+
+    // Handle authentication errors
+    if (error.response && error.response.status === 401) {
+      return reply.status(401).send({
+        error: 'Authentication failed',
+        message: 'Invalid or expired token'
+      });
+    }
+
+    return reply.status(500).send({
+      error: 'Internal server error',
+      message: 'Failed to fetch user information',
       details: error.message
     });
   }
