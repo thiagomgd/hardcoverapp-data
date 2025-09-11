@@ -54,22 +54,17 @@ fastify.get('/api/books', async (request, reply) => {
         'Content-Type': 'application/json'
       });
 
-      if (!data.list_books || !Array.isArray(data.list_books)) {
+      if (!data.user_books || !Array.isArray(data.user_books)) {
         return reply.status(404).send({
           error: 'No books found',
           message: `No books found for user ID: ${userID}`
         });
       }
 
-      const currentPageBooks = data.list_books.map(lb => ({
-        ...lb.book,
-        edition: lb.edition,
-        list: lb.list
-      }));
-      allBooks.push(...currentPageBooks);
+      allBooks.push(...data.user_books);
 
       // If we got fewer books than the limit, we've reached the end
-      if (currentPageBooks.length < limit) {
+      if (data.user_books.length < limit) {
         break;
       }
 
@@ -141,25 +136,30 @@ const GET_OWNED_BOOKS_QUERY = gql`
 // GraphQL query to get all books for a specific user
 const GET_USER_BOOKS_QUERY = gql`
   query GetUserBooks($userID: Int!, $offset: Int!, $limit: Int!) {
-    list_books(where: { list: { user_id: { _eq: $userID } } }, offset: $offset, limit: $limit, order_by: { created_at: desc }) {
-      book {
+    user_books(where: {user_id: {_eq: $userID}}, offset: $offset, limit: $limit, order_by: { created_at: desc }) {
+      review
+      reading_format {
+        format
         id
-        title
-        author
-        isbn
-        published_date
-        cover_image_url
       }
+      rating
       edition {
-        pages
-        edition_format
-        edition_information
         audio_seconds
         id
+        edition_format
+        edition_information
+        pages
+        physical_format
+        physical_information
       }
-      list {
+      book {
+        book_status {
+          name
+          id
+        }
         id
-        name
+        title
+        slug
       }
     }
   }
