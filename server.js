@@ -1,6 +1,10 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import { request as graphqlRequest, gql } from 'graphql-request';
+import dotenv from 'dotenv';
+
+// Load environment variables from .env.local file
+dotenv.config({ path: '.env.local' });
 
 const fastify = Fastify({
   logger: true
@@ -55,10 +59,13 @@ const GET_OWNED_BOOKS_QUERY = gql`
 fastify.get('/api/owned', async (request, reply) => {
   const { token } = request.query;
   
-  if (!token) {
+  // Use environment variable if no token provided (for local development)
+  const authToken = token || process.env.HARDCOVER_TOKEN;
+  
+  if (!authToken) {
     return reply.status(400).send({
       error: 'User token is required',
-      message: 'Please provide a token parameter'
+      message: 'Please provide a token parameter or set HARDCOVER_TOKEN environment variable'
     });
   }
 
@@ -74,7 +81,7 @@ fastify.get('/api/owned', async (request, reply) => {
       const variables = { offset, limit };
       
       const data = await graphqlRequest(HARDCOVER_API_URL, GET_OWNED_BOOKS_QUERY, variables, {
-        'Authorization': `Bearer ${token}`,
+        'Authorization': `Bearer ${authToken}`,
         'Content-Type': 'application/json'
       });
 
