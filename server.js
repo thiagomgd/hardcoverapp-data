@@ -1,5 +1,6 @@
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import { request as graphqlRequest, gql } from 'graphql-request';
 
 const fastify = Fastify({
   logger: true
@@ -23,6 +24,127 @@ fastify.get('/api/books', async (request, reply) => {
       { id: 2, title: 'Sample Book 2', author: 'Author 2' }
     ]
   };
+});
+
+// Hardcover GraphQL API endpoint
+const HARDCOVER_API_URL = 'https://api.hardcover.app/v1/graphql';
+
+// GraphQL query to get the "Owned" list with pagination
+const GET_OWNED_BOOKS_QUERY = gql`
+  query GetOwnedBooks($offset: Int!, $limit: Int!) {
+    me {
+      lists(where: { name: { _eq: "Owned" } }) {
+        id
+        name
+        list_books(offset: $offset, limit: $limit, order_by: { created_at: desc }) {
+          book {
+            id
+            title
+          }
+        }
+        list_books_aggregate {
+          aggregate {
+            count
+          }
+        }
+      }
+    }
+  }
+`;
+
+fastify.get('/api/owned', async (request, reply) => {
+  const { token } = request.query;
+  
+  if (!token) {
+    return reply.status(400).send({
+      error: 'User token is required',
+      message: 'Please provide a token parameter'
+    });
+  }
+
+  try {
+    const allBooks = [];
+    let offset = 0;
+    const limit = 100;
+    let totalCount = 0;
+    let ownedList = null;
+
+    // Fetch all pages until we have all books
+    while (true) {
+      const variables = { offset, limit };
+      
+      const data = await graphqlRequest(HARDCOVER_API_URL, GET_OWNED_BOOKS_QUERY, variables, {
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
+      });
+
+      if (!data.me || !Array.isArray(data.me) || data.me.length === 0 || !data.me[0].lists || data.me[0].lists.length === 0) {
+        return reply.status(404).send({
+          error: 'Owned list not found',
+          message: 'No "Owned" list found for this user'
+        });
+      }
+
+      // Get the owned list (first time we fetch it)
+      if (!ownedList) {
+        ownedList = data.me[0].lists[0];
+        totalCount = ownedList.list_books_aggregate.aggregate.count;
+      }
+
+      const currentPageBooks = ownedList.list_books.map(lb => lb.book);
+      allBooks.push(...currentPageBooks);
+
+      // If we got fewer books than the limit, we've reached the end
+      if (currentPageBooks.length < limit) {
+        break;
+      }
+
+      // If we've fetched all books according to the total count, we're done
+      if (allBooks.length >= totalCount) {
+        break;
+      }
+
+      offset += limit;
+    }
+
+    return {
+      success: true,
+      list: {
+        id: ownedList.id,
+        name: ownedList.name
+      },
+      books: allBooks,
+      count: allBooks.length,
+      totalCount: totalCount,
+      pagesFetched: Math.ceil(allBooks.length / limit)
+    };
+
+  } catch (error) {
+    fastify.log.error('Error fetching owned books:', error);
+    
+    // Handle GraphQL errors
+    if (error.response && error.response.errors) {
+      return reply.status(400).send({
+        error: 'GraphQL API error',
+        message: 'Error from Hardcover API',
+        details: error.response.errors
+      });
+    }
+
+    // Handle authentication errors
+    if (error.response && error.response.status === 401) {
+      return reply.status(401).send({
+        error: 'Authentication failed',
+        message: 'Invalid or expired token'
+      });
+    }
+
+    return reply.status(500).send({
+      error: 'Internal server error',
+      message: 'Failed to fetch owned books',
+      details: error.message
+    });
+  }
 });
 
 // Start the server
