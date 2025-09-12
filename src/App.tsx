@@ -14,7 +14,6 @@ function App() {
   const [userLoading, setUserLoading] = useState(true);
   const [userError, setUserError] = useState<string | null>(null);
 
-  console.log("userBookData", userBookData);
   // Fetch user information on app load
   useEffect(() => {
     const fetchUser = async () => {
@@ -52,10 +51,6 @@ function App() {
         <h1 className="text-4xl font-bold text-gray-800 mb-2">
           📚 Hardcover Data Viewer
         </h1>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Upload your Hardcover CSV export to view and analyze your book
-          collection
-        </p>
         {userLoading && (
           <p className="mt-4 text-gray-600">Loading user information...</p>
         )}
@@ -71,10 +66,6 @@ function App() {
       </header>
 
       <main className="py-10 px-5 mx-auto">
-        {/* <ApiTest /> */}
-        {/* {!uploadedData ? (
-          <CsvUploader onDataLoaded={handleDataLoaded} />
-        ) : ( */}
         <div className="bg-white rounded-xl shadow-xl overflow-hidden">
           <div className="flex justify-between items-center p-8 bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
             <h2 className="text-2xl font-semibold">Your Book Collection</h2>
