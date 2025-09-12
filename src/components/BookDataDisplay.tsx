@@ -27,22 +27,29 @@ const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
       let matchesChecks = true;
       if (checksFilter !== "none") {
         const tbrLists = book.tbrLists || [];
+        const editionsRead = book.editionsRead || [];
+        const editionsOwned = book.editionsOwned || [];
 
         switch (checksFilter) {
           case "read-on-tbr":
             // Note: BookInfo doesn't have status, so we'll skip this check
-            matchesChecks = false;
+            matchesChecks = editionsRead.length > 0 && tbrLists.length > 0;
             break;
           case "multiple-tbr":
             matchesChecks = tbrLists.length > 1;
             break;
           case "owned-not-read-no-tbr":
             // Note: BookInfo doesn't have owned/status fields, so we'll skip this check
-            matchesChecks = false;
+            matchesChecks =
+              editionsOwned.length > 0 &&
+              editionsRead.length === 0 &&
+              tbrLists.length === 0;
             break;
           case "read-no-rating-review":
             // Note: BookInfo doesn't have status field, so we'll skip this check
-            matchesChecks = false;
+            matchesChecks =
+              editionsRead.length > 0 &&
+              (!book.rating || book.rating === 0 || !book.hasReview);
             break;
           default:
             matchesChecks = true;
@@ -83,6 +90,8 @@ const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
           : (bValue as number) - (aValue as number);
       }
     });
+
+  // console.log("filteredAndSortedBooks", filteredAndSortedBooks[0]);
 
   return (
     <div className="book-data-display">
