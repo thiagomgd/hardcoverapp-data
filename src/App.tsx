@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import "./App.css";
 import LoadBooks from "./components/LoadBooks";
 import type { UserBooksMap } from "./types";
+import BookDataDisplay from "./components/BookDataDisplay";
 
 interface User {
   username: string;
@@ -75,7 +76,7 @@ function App() {
           <div className="data-header">
             <h2>Your Book Collection</h2>
           </div>
-          {/* <BookDataDisplay data={uploadedData} /> */}
+          {userBookData && <BookDataDisplay data={userBookData} />}
         </div>
         {/* )} */}
       </main>

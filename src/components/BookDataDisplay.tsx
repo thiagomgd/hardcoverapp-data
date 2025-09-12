@@ -1,56 +1,48 @@
 import React, { useState } from "react";
-import type { CsvUploadResult } from "../types";
+import type { UserBooksMap } from "../types";
 
 interface BookDataDisplayProps {
-  data: CsvUploadResult;
+  data: UserBooksMap;
 }
 
 const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [checksFilter, setChecksFilter] = useState<string>("none");
-  const [sortBy, setSortBy] = useState<
-    "title" | "author" | "rating" | "dateAdded"
-  >("title");
+  const [sortBy, setSortBy] = useState<"title" | "author" | "rating">("title");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
-  const filteredAndSortedBooks = data.books
+  // Convert UserBooksMap to array for processing
+  const books = Object.values(data);
+
+  const filteredAndSortedBooks = books
     .filter((book) => {
       const matchesSearch =
         book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (book.author &&
           book.author.toLowerCase().includes(searchTerm.toLowerCase()));
-      const matchesStatus =
-        statusFilter === "all" || book.status === statusFilter;
+      // Note: BookInfo doesn't have a status field, so we'll skip status filtering for now
+      const matchesStatus = true; // statusFilter === "all" || book.status === statusFilter;
 
-      // Checks filter logic
+      // Checks filter logic - adapted for BookInfo structure
       let matchesChecks = true;
       if (checksFilter !== "none") {
-        const allLists = book.lists
-          ? book.lists
-              .split(",")
-              .map((list) => list.trim())
-              .filter((list) => list.length > 0)
-          : [];
-        const tbrLists = allLists.filter((list) => list.startsWith("TBR:"));
+        const tbrLists = book.tbrLists || [];
 
         switch (checksFilter) {
           case "read-on-tbr":
-            matchesChecks = book.status === "Read" && tbrLists.length > 0;
+            // Note: BookInfo doesn't have status, so we'll skip this check
+            matchesChecks = false;
             break;
           case "multiple-tbr":
             matchesChecks = tbrLists.length > 1;
             break;
           case "owned-not-read-no-tbr":
-            matchesChecks =
-              book.owned && book.status !== "Read" && tbrLists.length === 0;
+            // Note: BookInfo doesn't have owned/status fields, so we'll skip this check
+            matchesChecks = false;
             break;
           case "read-no-rating-review":
-            matchesChecks =
-              book.status === "Read" &&
-              book.rating === 0 &&
-              (!book.review || book.review.trim() === "") &&
-              book.genres.toLowerCase().indexOf("graphic novel") === -1;
+            // Note: BookInfo doesn't have status field, so we'll skip this check
+            matchesChecks = false;
             break;
           default:
             matchesChecks = true;
@@ -76,10 +68,6 @@ const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
           aValue = a.rating || 0;
           bValue = b.rating || 0;
           break;
-        case "dateAdded":
-          aValue = new Date(a.dateAdded).getTime();
-          bValue = new Date(b.dateAdded).getTime();
-          break;
         default:
           aValue = a.title;
           bValue = b.title;
@@ -96,73 +84,35 @@ const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
       }
     });
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "Read":
-        return "#28a745";
-      case "Want to Read":
-        return "#007bff";
-      case "Currently Reading":
-        return "#ffc107";
-      case "Stopped":
-        return "#dc3545";
-      default:
-        return "#6c757d";
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    if (!dateString) return "N/A";
-    try {
-      return new Date(dateString).toLocaleDateString();
-    } catch {
-      return dateString;
-    }
-  };
-
   return (
     <div className="book-data-display">
       <div className="summary">
         <h2>📚 Book Data Summary</h2>
         <div className="stats">
           <div className="stat">
-            <span className="stat-number">{data.totalCount}</span>
+            <span className="stat-number">{books.length}</span>
             <span className="stat-label">Total Books</span>
           </div>
           <div className="stat">
             <span className="stat-number">
-              {data.books.filter((b) => b.status === "Read").length}
+              {books.filter((b) => b.rating && b.rating > 0).length}
             </span>
-            <span className="stat-label">Read</span>
+            <span className="stat-label">Rated Books</span>
           </div>
           <div className="stat">
             <span className="stat-number">
-              {data.books.filter((b) => b.status === "Want to Read").length}
+              {books.filter((b) => b.hasReview).length}
             </span>
-            <span className="stat-label">Want to Read</span>
+            <span className="stat-label">Books with Reviews</span>
           </div>
           <div className="stat">
             <span className="stat-number">
-              {
-                data.books.filter((b) => b.status === "Currently Reading")
-                  .length
-              }
+              {books.filter((b) => b.tbrLists && b.tbrLists.length > 0).length}
             </span>
-            <span className="stat-label">Currently Reading</span>
+            <span className="stat-label">Books in TBR Lists</span>
           </div>
         </div>
       </div>
-
-      {data.errors.length > 0 && (
-        <div className="errors">
-          <h3>⚠️ Processing Errors</h3>
-          <ul>
-            {data.errors.map((error, index) => (
-              <li key={index}>{error}</li>
-            ))}
-          </ul>
-        </div>
-      )}
 
       <div className="controls">
         <div className="search-box">
@@ -176,18 +126,6 @@ const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
         </div>
 
         <div className="filters">
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-            className="filter-select"
-          >
-            <option value="all">All Status</option>
-            <option value="Read">Read</option>
-            <option value="Want to Read">Want to Read</option>
-            <option value="Currently Reading">Currently Reading</option>
-            <option value="Stopped">Stopped</option>
-          </select>
-
           <select
             value={checksFilter}
             onChange={(e) => setChecksFilter(e.target.value)}
@@ -211,16 +149,13 @@ const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
           <select
             value={sortBy}
             onChange={(e) =>
-              setSortBy(
-                e.target.value as "title" | "author" | "rating" | "dateAdded",
-              )
+              setSortBy(e.target.value as "title" | "author" | "rating")
             }
             className="filter-select"
           >
             <option value="title">Sort by Title</option>
             <option value="author">Sort by Author</option>
             <option value="rating">Sort by Rating</option>
-            <option value="dateAdded">Sort by Date Added</option>
           </select>
 
           <button
@@ -234,64 +169,63 @@ const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
 
       <div className="books-grid">
         {filteredAndSortedBooks.map((book, index) => (
-          <div key={`${book.hardcoverBookId}-${index}`} className="book-card">
+          <div key={`${book.id}-${index}`} className="book-card">
             <div className="book-header">
               <h3 className="book-title">{book.title}</h3>
-              <span
-                className="book-status"
-                style={{ backgroundColor: getStatusColor(book.status) }}
-              >
-                {book.status}
-              </span>
+              {book.image && (
+                <img
+                  src={book.image}
+                  alt={book.title}
+                  className="book-image"
+                  style={{
+                    width: "60px",
+                    height: "90px",
+                    objectFit: "cover",
+                    marginLeft: "10px",
+                  }}
+                />
+              )}
             </div>
 
             <div className="book-details">
               {book.author && <p className="book-author">by {book.author}</p>}
 
-              {book.series && <p className="book-series">📖 {book.series}</p>}
+              {book.link && (
+                <p className="book-link">
+                  <a href={book.link} target="_blank" rel="noopener noreferrer">
+                    🔗 View on Hardcover
+                  </a>
+                </p>
+              )}
 
-              {book.rating > 0 && (
+              {book.rating && book.rating > 0 && (
                 <div className="book-rating">⭐ {book.rating}/5</div>
               )}
 
-              <div className="book-meta">
-                {book.pages > 0 && (
-                  <span className="meta-item">📄 {book.pages} pages</span>
-                )}
-                {book.publishDate && (
-                  <span className="meta-item">
-                    📅 {formatDate(book.publishDate)}
-                  </span>
-                )}
-                {book.media && (
-                  <span className="meta-item">📚 {book.media}</span>
-                )}
-              </div>
+              {book.hasReview && (
+                <div className="book-review-indicator">📝 Has Review</div>
+              )}
 
-              {book.genres && (
-                <div className="book-genres">
-                  {book.genres.split(",").map((genre, i) => (
-                    <span key={i} className="genre-tag">
-                      {genre.trim()}
+              {book.tbrLists && book.tbrLists.length > 0 && (
+                <div className="book-tbr-lists">
+                  <strong>TBR Lists:</strong>
+                  {book.tbrLists.map((list: string, i: number) => (
+                    <span key={i} className="tbr-tag">
+                      {list}
                     </span>
                   ))}
                 </div>
               )}
 
-              {book.tags && (
-                <div className="book-tags">
-                  {book.tags.split(",").map((tag, i) => (
-                    <span key={i} className="tag">
-                      #{tag.trim()}
-                    </span>
-                  ))}
+              {book.editionsOwned && book.editionsOwned.length > 0 && (
+                <div className="book-owned-editions">
+                  <strong>Owned Editions:</strong> {book.editionsOwned.length}
                 </div>
               )}
 
-              {book.review && (
-                <div className="book-review">
-                  <strong>Review:</strong> {book.review.substring(0, 200)}
-                  {book.review.length > 200 && "..."}
+              {book.editionsRead && book.editionsRead.length > 0 && (
+                <div className="book-read-editions">
+                  <strong>Read Editions:</strong> {book.editionsRead.length}
                 </div>
               )}
             </div>
