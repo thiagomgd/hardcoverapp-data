@@ -374,10 +374,9 @@ fastify.get('/api/tbrbooks', async (request, reply) => {
     }
 
     // Fetch books for each TBR list
-    const tbrBooksData = [];
+    const tbrBooksData = {};
     
     for (const tbrList of tbrLists) {
-      const allBooks = [];
       let offset = 0;
       const limit = 100;
 
@@ -391,7 +390,12 @@ fastify.get('/api/tbrbooks', async (request, reply) => {
         });
 
         if (listBooksData.list_books && Array.isArray(listBooksData.list_books)) {
-          allBooks.push(...listBooksData.list_books);
+          for (const book of listBooksData.list_books) {
+            if (!tbrBooksData[book.book.id]) {
+              tbrBooksData[book.book.id] = [];
+            }
+            tbrBooksData[book.book.id].push(tbrList.name);
+          }
         }
 
         // If we got fewer books than the limit, we've reached the end
@@ -402,19 +406,11 @@ fastify.get('/api/tbrbooks', async (request, reply) => {
         offset += limit;
       }
 
-      tbrBooksData.push({
-        list_name: tbrList.name,
-        list_id: tbrList.id,
-        books: allBooks,
-        count: allBooks.length
-      });
     }
 
     return {
       success: true,
-      tbr_lists: tbrBooksData,
-      total_tbr_lists: tbrBooksData.length,
-      total_books: tbrBooksData.reduce((sum, list) => sum + list.count, 0)
+      tbr_lists: tbrBooksData
     };
 
   } catch (error) {

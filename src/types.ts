@@ -128,3 +128,10 @@ export interface UserBooksResponse {
     count: number;
   };
 }
+
+export interface TBRBooksResponse {
+  success: boolean;
+  tbr_lists: { [bookId: number]: string[] };
+  message?: string;
+  details?: string;
+}

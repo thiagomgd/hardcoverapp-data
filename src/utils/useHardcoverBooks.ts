@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import type {
   OwnedBookData,
   OwnedBooksResponse,
+  TBRBooksResponse,
   UserBookData,
   UserBooksMap,
   UserBooksResponse,
@@ -47,6 +48,27 @@ const fetchUserBooks = async (userId: string): Promise<Array<UserBookData>> => {
   }
 };
 
+const fetchTBRBooks = async (
+  userId: string,
+): Promise<{ [bookId: number]: string[] }> => {
+  if (!userId) {
+    throw new Error("User ID is required");
+  }
+
+  // For now, we'll let the server use the environment variable
+  // TODO: pass the token - we have to ask user for it still
+  const response = await fetch(
+    `/api/tbrbooks?userID=${encodeURIComponent(userId)}`,
+  );
+  const data: TBRBooksResponse = await response.json();
+
+  if (response.ok && data.success) {
+    return data.tbr_lists;
+  } else {
+    throw new Error(data.message || "Failed to load TBR books");
+  }
+};
+
 export const useHardcoverBooks = (
   userId: string,
   onBooksLoaded?: (books: UserBooksMap) => void,
@@ -89,9 +111,17 @@ export const useHardcoverBooks = (
           bookData[book.book.id] = {
             id: book.book.id,
             title: book.book.title,
-            link: `https://hardcover.app/books/${book.book.slug}`,
+            link: `https://hardcover.app/books/${book.book.id}`, // Using ID since slug is not available in OwnedBookData
             editionsOwned: [book.edition.id],
           };
+        }
+      }
+
+      const tbrBooks = await fetchTBRBooks(userId);
+      for (const [bookId, tbrLists] of Object.entries(tbrBooks)) {
+        const bookIdNum = parseInt(bookId);
+        if (Object.hasOwn(bookData, bookIdNum)) {
+          bookData[bookIdNum]!.tbrLists = tbrLists;
         }
       }
 
