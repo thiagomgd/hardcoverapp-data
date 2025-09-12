@@ -111,9 +111,9 @@ fastify.get('/api/books', async (request, reply) => {
 const HARDCOVER_API_URL = 'https://api.hardcover.app/v1/graphql';
 
 // GraphQL query to get the "Owned" list with pagination for a specific user
-const GET_OWNED_BOOKS_QUERY = gql`
-  query GetOwnedBooks($userID: Int!, $offset: Int!, $limit: Int!) {
-    list_books({list: {name: {_eq: "Owned"}, user_id: {_eq: $userID}}}, offset: $offset, limit: $limit, order_by: { created_at: desc }) {
+const GET_LIST_BOOKS_QUERY = gql`
+  query GetOwnedBooks($userID: Int!, $offset: Int!, $limit: Int!, $listName: String!) {
+    list_books({list: {name: {_eq: $listName}, user_id: {_eq: $userID}}}, offset: $offset, limit: $limit, order_by: { created_at: desc }) {
       book {
           id
           title
@@ -200,9 +200,9 @@ fastify.get('/api/owned', async (request, reply) => {
 
     // Fetch all pages until we have all books
     while (true) {
-      const variables = { userID, offset, limit };
+      const variables = { userID, offset, limit, listName: "Owned" };
       
-      const data = await graphqlRequest(HARDCOVER_API_URL, GET_OWNED_BOOKS_QUERY, variables, {
+      const data = await graphqlRequest(HARDCOVER_API_URL, GET_LIST_BOOKS_QUERY, variables, {
         'Authorization': `Bearer ${authToken}`,
         'Content-Type': 'application/json'
       });
