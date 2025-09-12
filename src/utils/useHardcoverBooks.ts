@@ -1,58 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
+import type {
+  OwnedBookData,
+  OwnedBooksResponse,
+  UserBookData,
+  UserBooksMap,
+  UserBooksResponse,
+} from "../types";
 
-interface OwnedBooksData {
-  success: boolean;
-  list?: {
-    id: string;
-    name: string;
-  };
-  books?: Array<{
-    id: string;
-    title: string;
-  }>;
-  count?: number;
-  totalCount?: number;
-  pagesFetched?: number;
-  error?: string;
-  message?: string;
-}
-
-interface UserBooksData {
-  success: boolean;
-  books: Array<{
-    review: string | null;
-    reading_format: {
-      format: string;
-      id: number;
-    };
-    rating: number | null;
-    edition: {
-      audio_seconds: number | null;
-      id: number;
-      edition_format: string;
-      edition_information: string;
-      pages: number | null;
-      physical_format: string | null;
-      physical_information: string | null;
-    };
-    book: {
-      book_status: {
-        name: string;
-        id: number;
-      };
-      id: number;
-      title: string;
-      slug: string;
-    };
-  }>;
-  count: number;
-}
-
-interface UserBooksResponse {
-  user_books: UserBooksData;
-}
-
-const fetchOwnedBooks = async (userId: string): Promise<OwnedBooksData> => {
+const fetchOwnedBooks = async (
+  userId: string,
+): Promise<Array<OwnedBookData>> => {
   if (!userId) {
     throw new Error("User ID is required");
   }
@@ -62,16 +19,16 @@ const fetchOwnedBooks = async (userId: string): Promise<OwnedBooksData> => {
   const response = await fetch(
     `/api/owned?userID=${encodeURIComponent(userId)}`,
   );
-  const data: OwnedBooksData = await response.json();
+  const data: OwnedBooksResponse = await response.json();
 
   if (response.ok && data.success) {
-    return data;
+    return data.books;
   } else {
     throw new Error(data.error || "Failed to load owned books");
   }
 };
 
-const fetchUserBooks = async (userId: string): Promise<UserBooksData> => {
+const fetchUserBooks = async (userId: string): Promise<Array<UserBookData>> => {
   if (!userId) {
     throw new Error("User ID is required");
   }
@@ -84,7 +41,7 @@ const fetchUserBooks = async (userId: string): Promise<UserBooksData> => {
   const data: UserBooksResponse = await response.json();
 
   if (response.ok && data.user_books?.success) {
-    return data.user_books;
+    return data.user_books.books;
   } else {
     throw new Error("Failed to load user books");
   }
@@ -92,27 +49,58 @@ const fetchUserBooks = async (userId: string): Promise<UserBooksData> => {
 
 export const useHardcoverBooks = (
   userId: string,
-  onBooksLoaded?: (books: OwnedBooksData) => void,
+  onBooksLoaded?: (books: UserBooksMap) => void,
 ) => {
   return useQuery({
     queryKey: ["hardcoverBooks", userId],
-    queryFn: async (): Promise<OwnedBooksData> => {
-      const bookData = {};
+    queryFn: async (): Promise<UserBooksMap> => {
+      const bookData: UserBooksMap = {};
 
       const userBooks = await fetchUserBooks(userId);
 
-      for (const book of userBooks.books) {
-        if (!bookData[book.id]) {
+      for (const book of userBooks) {
+        if (Object.hasOwn(bookData, book.book.id)) {
+          console.debug(`Book ${book.book.id} already exists`);
+          continue;
+        }
+
+        bookData[book.book.id] = {
+          id: book.book.id,
+          title: book.book.title,
+          link: `https://hardcover.app/books/${book.book.slug}`,
+          hasReview: book.review !== null,
+          rating: book.rating ?? undefined,
+          editionsRead:
+            book.book.book_status.name === "Read"
+              ? [book.edition.id]
+              : undefined,
+        };
+      }
+
+      const ownedBooks = await fetchOwnedBooks(userId);
+      for (const book of ownedBooks) {
+        if (Object.hasOwn(bookData, book.book.id)) {
+          const existingBook = bookData[book.book.id]!;
+          if (!existingBook.editionsOwned) {
+            existingBook.editionsOwned = [];
+          }
+          existingBook.editionsOwned.push(book.edition.id);
+        } else {
+          bookData[book.book.id] = {
+            id: book.book.id,
+            title: book.book.title,
+            link: `https://hardcover.app/books/${book.book.slug}`,
+            editionsOwned: [book.edition.id],
+          };
         }
       }
-      const ownedBooks = await fetchOwnedBooks(userId);
 
       // Call the callback when data is successfully loaded
       if (onBooksLoaded) {
-        onBooksLoaded(data);
+        onBooksLoaded(bookData);
       }
 
-      return data;
+      return bookData;
     },
     enabled: !!userId, // Only run the query when userId is available
   });

@@ -1,25 +1,9 @@
+import type { UserBooksMap } from "../types";
 import { useHardcoverBooks } from "../utils/useHardcoverBooks";
-
-interface OwnedBooksData {
-  success: boolean;
-  list?: {
-    id: string;
-    name: string;
-  };
-  books?: Array<{
-    id: string;
-    title: string;
-  }>;
-  count?: number;
-  totalCount?: number;
-  pagesFetched?: number;
-  error?: string;
-  message?: string;
-}
 
 interface LoadBooksProps {
   userId: string;
-  onBooksLoaded: (books: OwnedBooksData) => void;
+  onBooksLoaded: (books: UserBooksMap) => void;
 }
 
 const LoadBooks: React.FC<LoadBooksProps> = ({ userId, onBooksLoaded }) => {

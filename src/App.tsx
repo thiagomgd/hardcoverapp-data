@@ -1,35 +1,20 @@
 import { useState, useEffect } from "react";
 import "./App.css";
 import LoadBooks from "./components/LoadBooks";
+import type { UserBooksMap } from "./types";
 
 interface User {
   username: string;
   id: string;
 }
 
-interface OwnedBooksData {
-  success: boolean;
-  list?: {
-    id: string;
-    name: string;
-  };
-  books?: Array<{
-    id: string;
-    title: string;
-  }>;
-  count?: number;
-  totalCount?: number;
-  pagesFetched?: number;
-  error?: string;
-  message?: string;
-}
-
 function App() {
-  const [userBookData, setUserData] = useState<OwnedBooksData | null>(null);
+  const [userBookData, setUserData] = useState<UserBooksMap | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const [userLoading, setUserLoading] = useState(true);
   const [userError, setUserError] = useState<string | null>(null);
 
+  console.log("userBookData", userBookData);
   // Fetch user information on app load
   useEffect(() => {
     const fetchUser = async () => {
@@ -57,7 +42,7 @@ function App() {
   }, []);
 
   // Handler for when books are loaded
-  const handleBooksLoaded = (booksData: OwnedBooksData) => {
+  const handleBooksLoaded = (booksData: UserBooksMap) => {
     setUserData(booksData);
   };
 

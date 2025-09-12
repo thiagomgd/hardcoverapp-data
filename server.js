@@ -113,21 +113,19 @@ const HARDCOVER_API_URL = 'https://api.hardcover.app/v1/graphql';
 // GraphQL query to get the "Owned" list with pagination for a specific user
 const GET_OWNED_BOOKS_QUERY = gql`
   query GetOwnedBooks($userID: Int!, $offset: Int!, $limit: Int!) {
-    lists(where: { name: { _eq: "Owned" }, user_id: { _eq: $userID } }) {
-      id
-      name
-      list_books(offset: $offset, limit: $limit, order_by: { created_at: desc }) {
-        book {
+    list_books({list: {name: {_eq: "Owned"}, user_id: {_eq: $userID}}}, offset: $offset, limit: $limit, order_by: { created_at: desc }) {
+      book {
           id
           title
         }
-        edition {
-          pages
-          edition_format
-          edition_information
-          audio_seconds
-          id
-        }
+      edition {
+        audio_seconds
+        id
+        edition_format
+        edition_information
+        pages
+        physical_format
+        physical_information
       }
     }
   }
@@ -199,7 +197,6 @@ fastify.get('/api/owned', async (request, reply) => {
     const allBooks = [];
     let offset = 0;
     const limit = 100;
-    let ownedList = null;
 
     // Fetch all pages until we have all books
     while (true) {
@@ -210,23 +207,18 @@ fastify.get('/api/owned', async (request, reply) => {
         'Content-Type': 'application/json'
       });
 
-      if (!data.lists || !Array.isArray(data.lists) || data.lists.length === 0) {
+      if (!data.list_books || !Array.isArray(data.list_books) || data.lists.length === 0) {
         return reply.status(404).send({
           error: 'Owned list not found',
           message: `No "Owned" list found for user ID: ${userID}`
         });
       }
 
-      // Get the owned list (first time we fetch it)
-      if (!ownedList) {
-        ownedList = data.lists[0];
-      }
-
-      const currentPageBooks = ownedList.list_books.map(lb => lb.book);
-      allBooks.push(...currentPageBooks);
+      // const currentPageBooks = ownedList.list_books.map(lb => lb.book);
+      allBooks.push(...data.list_books);
 
       // If we got fewer books than the limit, we've reached the end
-      if (currentPageBooks.length < limit) {
+      if (data.list_books.length < limit) {
         break;
       }
 
@@ -235,10 +227,6 @@ fastify.get('/api/owned', async (request, reply) => {
 
     return {
       success: true,
-      list: {
-        id: ownedList.id,
-        name: ownedList.name
-      },
       books: allBooks,
       count: allBooks.length
     };
