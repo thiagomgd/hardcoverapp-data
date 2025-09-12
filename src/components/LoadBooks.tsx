@@ -21,7 +21,7 @@ const LoadBooks: React.FC<LoadBooksProps> = ({ userId, onBooksLoaded }) => {
   if (isLoading) {
     return (
       <div className="load-books">
-        <p>Loading your owned books...</p>
+        <p>Loading your books...</p>
       </div>
     );
   }
@@ -37,15 +37,7 @@ const LoadBooks: React.FC<LoadBooksProps> = ({ userId, onBooksLoaded }) => {
 
   return (
     <div className="load-books">
-      <button onClick={handleRetry}>Load Owned Books</button>
-      {booksData && booksData.success && (
-        <div>
-          <p>
-            Loaded {booksData.count} owned books from "{booksData.list?.name}"
-            list
-          </p>
-        </div>
-      )}
+      <button onClick={handleRetry}>Load Books</button>
     </div>
   );
 };

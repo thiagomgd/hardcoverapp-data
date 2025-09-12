@@ -20,8 +20,6 @@ const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
         book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (book.author &&
           book.author.toLowerCase().includes(searchTerm.toLowerCase()));
-      // Note: BookInfo doesn't have a status field, so we'll skip status filtering for now
-      const matchesStatus = true; // statusFilter === "all" || book.status === statusFilter;
 
       // Checks filter logic - adapted for BookInfo structure
       let matchesChecks = true;
@@ -55,7 +53,7 @@ const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
         }
       }
 
-      return matchesSearch && matchesStatus && matchesChecks;
+      return matchesSearch && matchesChecks;
     })
     .sort((a, b) => {
       let aValue: string | number;
