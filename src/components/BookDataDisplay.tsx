@@ -89,51 +89,53 @@ const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
     });
 
   return (
-    <div className="book-data-display">
-      <div className="summary">
-        <h2>📚 Book Data Summary</h2>
-        <div className="stats">
-          <div className="stat">
-            <span className="stat-number">{books.length}</span>
-            <span className="stat-label">Total Books</span>
+    <div className="w-full max-w-6xl mx-auto p-5">
+      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-8 rounded-xl mb-8">
+        <h2 className="text-3xl font-bold mb-5">📚 Book Data Summary</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
+          <div className="text-center">
+            <span className="block text-3xl font-bold mb-1">
+              {books.length}
+            </span>
+            <span className="text-sm opacity-90">Total Books</span>
           </div>
-          <div className="stat">
-            <span className="stat-number">
+          <div className="text-center">
+            <span className="block text-3xl font-bold mb-1">
               {books.filter((b) => b.rating && b.rating > 0).length}
             </span>
-            <span className="stat-label">Rated Books</span>
+            <span className="text-sm opacity-90">Rated Books</span>
           </div>
-          <div className="stat">
-            <span className="stat-number">
+          <div className="text-center">
+            <span className="block text-3xl font-bold mb-1">
               {books.filter((b) => b.hasReview).length}
             </span>
-            <span className="stat-label">Books with Reviews</span>
+            <span className="text-sm opacity-90">Books with Reviews</span>
           </div>
-          <div className="stat">
-            <span className="stat-number">
+          <div className="text-center">
+            <span className="block text-3xl font-bold mb-1">
               {books.filter((b) => b.tbrLists && b.tbrLists.length > 0).length}
             </span>
-            <span className="stat-label">Books in TBR Lists</span>
+            <span className="text-sm opacity-90">Books in TBR Lists</span>
           </div>
         </div>
       </div>
 
-      <div className="controls">
-        <div className="search-box">
+      <div className="flex flex-wrap gap-4 mb-8 items-center">
+        <div className="flex-1 min-w-64">
           <input
             type="text"
             placeholder="Search books by title or author..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
+            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg text-base focus:outline-none focus:border-blue-500 transition-colors"
           />
         </div>
 
-        <div className="filters">
+        <div className="flex gap-3 items-center">
           <select
             value={checksFilter}
             onChange={(e) => setChecksFilter(e.target.value)}
-            className="filter-select"
+            className="px-4 py-3 border-2 border-gray-200 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:border-blue-500"
           >
             <option value="none">None</option>
             <option value="started-on-tbr">
@@ -154,7 +156,7 @@ const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
             onChange={(e) =>
               setSortBy(e.target.value as "title" | "author" | "rating")
             }
-            className="filter-select"
+            className="px-4 py-3 border-2 border-gray-200 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:border-blue-500"
           >
             <option value="title">Sort by Title</option>
             <option value="author">Sort by Author</option>
@@ -163,71 +165,84 @@ const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
 
           <button
             onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-            className="sort-button"
+            className="px-4 py-3 border-2 border-gray-200 rounded-lg bg-white cursor-pointer text-base font-bold hover:bg-gray-50 transition-all focus:outline-none focus:border-blue-500"
           >
             {sortOrder === "asc" ? "↑" : "↓"}
           </button>
         </div>
       </div>
 
-      <div className="books-grid">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
         {filteredAndSortedBooks.map((book, index) => (
-          <div key={`${book.id}-${index}`} className="book-card">
-            <div className="book-header">
-              <h3 className="book-title">{book.title}</h3>
+          <div
+            key={`${book.id}-${index}`}
+            className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm hover:shadow-md hover:-translate-y-1 transition-all duration-200"
+          >
+            <div className="flex justify-between items-start mb-4">
+              <h3 className="text-lg font-semibold text-gray-800 leading-tight flex-1 mr-3">
+                {book.title}
+              </h3>
               {book.image && (
                 <img
                   src={book.image}
                   alt={book.title}
-                  className="book-image"
-                  style={{
-                    width: "60px",
-                    height: "90px",
-                    objectFit: "cover",
-                    marginLeft: "10px",
-                  }}
+                  className="w-15 h-20 object-cover ml-2 rounded"
                 />
               )}
             </div>
 
-            <div className="book-details">
-              {book.author && <p className="book-author">by {book.author}</p>}
+            <div className="space-y-3">
+              {book.author && (
+                <p className="text-gray-600 italic">by {book.author}</p>
+              )}
 
               {book.link && (
-                <p className="book-link">
-                  <a href={book.link} target="_blank" rel="noopener noreferrer">
+                <p>
+                  <a
+                    href={book.link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 underline"
+                  >
                     🔗 View on Hardcover
                   </a>
                 </p>
               )}
 
               {book.rating && book.rating > 0 && (
-                <div className="book-rating">⭐ {book.rating}/5</div>
+                <div className="font-medium text-yellow-600">
+                  ⭐ {book.rating}/5
+                </div>
               )}
 
               {book.hasReview && (
-                <div className="book-review-indicator">📝 Has Review</div>
+                <div className="text-green-600 font-medium">📝 Has Review</div>
               )}
 
               {book.tbrLists && book.tbrLists.length > 0 && (
-                <div className="book-tbr-lists">
-                  <strong>TBR Lists:</strong>
-                  {book.tbrLists.map((list: string, i: number) => (
-                    <span key={i} className="tbr-tag">
-                      {list}
-                    </span>
-                  ))}
+                <div>
+                  <strong className="text-gray-700">TBR Lists:</strong>
+                  <div className="mt-1">
+                    {book.tbrLists.map((list: string, i: number) => (
+                      <span
+                        key={i}
+                        className="inline-block bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs mr-1 mb-1"
+                      >
+                        {list}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
 
               {book.editionsOwned && book.editionsOwned.length > 0 && (
-                <div className="book-owned-editions">
+                <div className="text-sm text-gray-600">
                   <strong>Owned Editions:</strong> {book.editionsOwned.length}
                 </div>
               )}
 
               {book.editionsRead && book.editionsRead.length > 0 && (
-                <div className="book-read-editions">
+                <div className="text-sm text-gray-600">
                   <strong>Read Editions:</strong> {book.editionsRead.length}
                 </div>
               )}
@@ -237,7 +252,7 @@ const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
       </div>
 
       {filteredAndSortedBooks.length === 0 && (
-        <div className="no-results">
+        <div className="text-center py-10 text-gray-500 text-lg">
           <p>No books found matching your criteria.</p>
         </div>
       )}

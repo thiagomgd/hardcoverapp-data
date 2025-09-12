@@ -216,31 +216,44 @@ const CsvUploader: React.FC<CsvUploaderProps> = ({ onDataLoaded }) => {
   );
 
   return (
-    <div className="csv-uploader">
+    <div className="w-full max-w-2xl mx-auto">
       <div
-        className={`upload-area ${isDragOver ? "drag-over" : ""} ${isLoading ? "loading" : ""}`}
+        className={`border-2 border-dashed rounded-lg p-10 text-center transition-all duration-300 cursor-pointer ${
+          isDragOver
+            ? "border-blue-500 bg-blue-50 scale-105"
+            : isLoading
+              ? "border-green-500 bg-green-50"
+              : "border-gray-300 bg-gray-50 hover:border-blue-500 hover:bg-blue-50"
+        }`}
         onDrop={handleDrop}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
       >
         {isLoading ? (
-          <div className="loading-content">
-            <div className="spinner"></div>
-            <p>Processing CSV file...</p>
+          <div className="flex flex-col items-center gap-4">
+            <div className="w-10 h-10 border-4 border-gray-300 border-t-blue-500 rounded-full animate-spin"></div>
+            <p className="text-green-600 font-medium">Processing CSV file...</p>
           </div>
         ) : (
-          <div className="upload-content">
-            <div className="upload-icon">📁</div>
-            <h3>Upload Hardcover CSV Export</h3>
-            <p>Drag and drop your CSV file here, or click to browse</p>
+          <div className="flex flex-col items-center gap-4">
+            <div className="text-5xl opacity-60">📁</div>
+            <h3 className="text-2xl text-gray-800">
+              Upload Hardcover CSV Export
+            </h3>
+            <p className="text-gray-600">
+              Drag and drop your CSV file here, or click to browse
+            </p>
             <input
               type="file"
               accept=".csv"
               onChange={handleFileInput}
-              className="file-input"
+              className="hidden"
               id="csv-file-input"
             />
-            <label htmlFor="csv-file-input" className="browse-button">
+            <label
+              htmlFor="csv-file-input"
+              className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg cursor-pointer font-medium transition-colors"
+            >
               Browse Files
             </label>
           </div>

@@ -32,45 +32,32 @@ const ApiTest = () => {
   };
 
   return (
-    <div
-      style={{
-        margin: "20px",
-        padding: "20px",
-        border: "1px solid #ccc",
-        borderRadius: "8px",
-      }}
-    >
-      <h3>🚀 Fastify API Test</h3>
+    <div className="m-5 p-5 border border-gray-300 rounded-lg bg-white">
+      <h3 className="text-xl font-semibold mb-5">🚀 Fastify API Test</h3>
 
-      <div style={{ marginBottom: "20px" }}>
+      <div className="mb-5">
         <button
           onClick={testHealth}
           disabled={loading}
-          style={{ marginRight: "10px", padding: "8px 16px" }}
+          className="mr-3 px-4 py-2 bg-blue-500 hover:bg-blue-600 disabled:bg-gray-400 text-white rounded transition-colors"
         >
           Test Health Endpoint
         </button>
         <button
           onClick={fetchBooks}
           disabled={loading}
-          style={{ padding: "8px 16px" }}
+          className="px-4 py-2 bg-green-500 hover:bg-green-600 disabled:bg-gray-400 text-white rounded transition-colors"
         >
           Fetch Books
         </button>
       </div>
 
-      {loading && <p>Loading...</p>}
+      {loading && <p className="text-gray-600">Loading...</p>}
 
       {healthStatus && (
-        <div style={{ marginBottom: "20px" }}>
-          <h4>Health Status:</h4>
-          <pre
-            style={{
-              background: "#f5f5f5",
-              padding: "10px",
-              borderRadius: "4px",
-            }}
-          >
+        <div className="mb-5">
+          <h4 className="font-semibold mb-2">Health Status:</h4>
+          <pre className="bg-gray-100 p-3 rounded text-sm overflow-auto">
             {healthStatus}
           </pre>
         </div>
@@ -78,10 +65,10 @@ const ApiTest = () => {
 
       {books.length > 0 && (
         <div>
-          <h4>Books from API:</h4>
-          <ul>
+          <h4 className="font-semibold mb-2">Books from API:</h4>
+          <ul className="space-y-1">
             {books.map((book) => (
-              <li key={book.id}>
+              <li key={book.id} className="text-gray-700">
                 <strong>{book.title}</strong> by {book.author}
               </li>
             ))}

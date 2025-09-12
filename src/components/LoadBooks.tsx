@@ -7,12 +7,10 @@ interface LoadBooksProps {
 }
 
 const LoadBooks: React.FC<LoadBooksProps> = ({ userId, onBooksLoaded }) => {
-  const {
-    data: booksData,
-    isLoading,
-    error,
-    refetch,
-  } = useHardcoverBooks(userId, onBooksLoaded);
+  const { isLoading, error, refetch } = useHardcoverBooks(
+    userId,
+    onBooksLoaded,
+  );
 
   const handleRetry = () => {
     refetch();
@@ -20,24 +18,34 @@ const LoadBooks: React.FC<LoadBooksProps> = ({ userId, onBooksLoaded }) => {
 
   if (isLoading) {
     return (
-      <div className="load-books">
-        <p>Loading your books...</p>
+      <div className="mt-6">
+        <p className="text-gray-600">Loading your books...</p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="load-books">
-        <p style={{ color: "red" }}>Error: {error.message}</p>
-        <button onClick={handleRetry}>Retry</button>
+      <div className="mt-6">
+        <p className="text-red-600 mb-4">Error: {error.message}</p>
+        <button
+          onClick={handleRetry}
+          className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg transition-colors"
+        >
+          Retry
+        </button>
       </div>
     );
   }
 
   return (
-    <div className="load-books">
-      <button onClick={handleRetry}>Load Books</button>
+    <div className="mt-6">
+      <button
+        onClick={handleRetry}
+        className="bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors"
+      >
+        Load Books
+      </button>
     </div>
   );
 };
