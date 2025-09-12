@@ -217,7 +217,7 @@ fastify.get('/api/owned', async (request, reply) => {
         'Content-Type': 'application/json'
       });
 
-      if (!data.list_books || !Array.isArray(data.list_books) || data.lists.length === 0) {
+      if (!data.list_books || !Array.isArray(data.list_books) || data.list_books.length === 0) {
         return reply.status(404).send({
           error: 'Owned list not found',
           message: `No "Owned" list found for user ID: ${userID}`
