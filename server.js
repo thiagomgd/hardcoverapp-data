@@ -113,7 +113,7 @@ const HARDCOVER_API_URL = 'https://api.hardcover.app/v1/graphql';
 // GraphQL query to get the "Owned" list with pagination for a specific user
 const GET_LIST_BOOKS_QUERY = gql`
   query GetOwnedBooks($userID: Int!, $offset: Int!, $limit: Int!, $listName: String!) {
-    list_books({list: {name: {_eq: $listName}, user_id: {_eq: $userID}}}, offset: $offset, limit: $limit, order_by: { created_at: desc }) {
+    list_books(where: {list: {name: {_eq: $listName}, user_id: {_eq: $userID}}}, offset: $offset, limit: $limit, order_by: { created_at: desc }) {
       book {
           id
           title
@@ -169,6 +169,16 @@ const GET_USER_QUERY = gql`
     me {
       username
       id
+    }
+  }
+`;
+
+// GraphQL query to get all lists for a specific user
+const GET_USER_LISTS_QUERY = gql`
+  query GetUserLists($userID: Int!) {
+    lists(where: {user_id: {_eq: $userID}}) {
+      id
+      name
     }
   }
 `;
@@ -313,6 +323,123 @@ fastify.get('/api/user', async (request, reply) => {
     return reply.status(500).send({
       error: 'Internal server error',
       message: 'Failed to fetch user information',
+      details: error.message
+    });
+  }
+});
+
+fastify.get('/api/tbrbooks', async (request, reply) => {
+  const { token, userID } = request.query;
+  
+  // Use environment variable if no token provided (for local development)
+  const authToken = token || process.env.HARDCOVER_TOKEN;
+  
+  if (!authToken) {
+    return reply.status(400).send({
+      error: 'User token is required',
+      message: 'Please provide a token parameter or set HARDCOVER_TOKEN environment variable'
+    });
+  }
+
+  if (!userID) {
+    return reply.status(400).send({
+      error: 'User ID is required',
+      message: 'Please provide a userID parameter'
+    });
+  }
+
+  try {
+    // First, fetch all user lists
+    const listsData = await graphqlRequest(HARDCOVER_API_URL, GET_USER_LISTS_QUERY, { userID }, {
+      'Authorization': `Bearer ${authToken}`,
+      'Content-Type': 'application/json'
+    });
+
+    if (!listsData.lists || !Array.isArray(listsData.lists)) {
+      return reply.status(404).send({
+        error: 'No lists found',
+        message: `No lists found for user ID: ${userID}`
+      });
+    }
+
+    // Filter lists that start with "TBR:"
+    const tbrLists = listsData.lists.filter(list => list.name.startsWith('TBR:'));
+
+    if (tbrLists.length === 0) {
+      return {
+        success: true,
+        tbr_lists: [],
+        message: 'No TBR lists found'
+      };
+    }
+
+    // Fetch books for each TBR list
+    const tbrBooksData = [];
+    
+    for (const tbrList of tbrLists) {
+      const allBooks = [];
+      let offset = 0;
+      const limit = 100;
+
+      // Fetch all pages for this list
+      while (true) {
+        const variables = { userID, offset, limit, listName: tbrList.name };
+        
+        const listBooksData = await graphqlRequest(HARDCOVER_API_URL, GET_LIST_BOOKS_QUERY, variables, {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        });
+
+        if (listBooksData.list_books && Array.isArray(listBooksData.list_books)) {
+          allBooks.push(...listBooksData.list_books);
+        }
+
+        // If we got fewer books than the limit, we've reached the end
+        if (!listBooksData.list_books || listBooksData.list_books.length < limit) {
+          break;
+        }
+
+        offset += limit;
+      }
+
+      tbrBooksData.push({
+        list_name: tbrList.name,
+        list_id: tbrList.id,
+        books: allBooks,
+        count: allBooks.length
+      });
+    }
+
+    return {
+      success: true,
+      tbr_lists: tbrBooksData,
+      total_tbr_lists: tbrBooksData.length,
+      total_books: tbrBooksData.reduce((sum, list) => sum + list.count, 0)
+    };
+
+  } catch (error) {
+    fastify.log.error('Error fetching TBR books:', error);
+    
+    // Handle GraphQL errors
+    if (error.response && error.response.errors) {
+      return reply.status(400).send({
+        error: 'GraphQL API error',
+        message: 'Error from Hardcover API',
+        details: error.response.errors
+      });
+    }
+
+    // Handle authentication errors
+    if (error.response && error.response.status === 401) {
+      return reply.status(401).send({
+        error: 'Authentication failed',
+        message: 'Invalid or expired token'
+      });
+    }
+
+    return reply.status(500).send({
+      error: 'Internal server error',
+      message: 'Failed to fetch TBR books',
       details: error.message
     });
   }
