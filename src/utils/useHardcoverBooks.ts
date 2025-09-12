@@ -92,8 +92,10 @@ export const useHardcoverBooks = (
           link: `https://hardcover.app/books/${book.book.slug}`,
           hasReview: book.review !== null,
           rating: book.rating ?? undefined,
+          status: book.book.book_status.name,
+          statusId: book.status_id ?? undefined,
           editionsRead:
-            book.book.book_status.name === "Read"
+            book.status_id && book.status_id >= 2
               ? [book.edition.id]
               : undefined,
         };

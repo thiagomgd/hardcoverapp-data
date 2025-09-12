@@ -6,10 +6,20 @@ export interface AppState {
   tbrListsFetched: string;
 }
 
+// Status	Description
+// 1	Want to Read
+// 2	Currently Reading
+// 3	Read
+// 4	Paused
+// 5	Did Not Finished
+// 6	Ignored
+
 export interface BookInfo {
   id: number;
   title: string;
   link: string;
+  status?: string;
+  statusId?: number;
   tbrLists?: string[];
   editionsOwned?: number[];
   editionsRead?: number[];
@@ -96,6 +106,7 @@ export interface OwnedBooksResponse {
 
 export interface UserBookData {
   review: string | null;
+  status_id: number | null;
   reading_format: {
     format: string;
     id: number;

@@ -27,29 +27,28 @@ const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
       let matchesChecks = true;
       if (checksFilter !== "none") {
         const tbrLists = book.tbrLists || [];
-        const editionsRead = book.editionsRead || [];
         const editionsOwned = book.editionsOwned || [];
+        const startedReading = book.statusId && book.statusId >= 2;
 
         switch (checksFilter) {
-          case "read-on-tbr":
-            // Note: BookInfo doesn't have status, so we'll skip this check
-            matchesChecks = editionsRead.length > 0 && tbrLists.length > 0;
+          case "started-on-tbr":
+            matchesChecks = startedReading && tbrLists.length > 0;
             break;
           case "multiple-tbr":
             matchesChecks = tbrLists.length > 1;
             break;
-          case "owned-not-read-no-tbr":
-            // Note: BookInfo doesn't have owned/status fields, so we'll skip this check
+          case "owned-not-started-no-tbr":
             matchesChecks =
               editionsOwned.length > 0 &&
-              editionsRead.length === 0 &&
+              !startedReading &&
               tbrLists.length === 0;
             break;
-          case "read-no-rating-review":
-            // Note: BookInfo doesn't have status field, so we'll skip this check
+          case "read-no-rating":
             matchesChecks =
-              editionsRead.length > 0 &&
-              (!book.rating || book.rating === 0 || !book.hasReview);
+              book.statusId === 3 && (!book.rating || book.rating === 0);
+            break;
+          case "read-no-review":
+            matchesChecks = book.statusId === 3 && !book.hasReview;
             break;
           default:
             matchesChecks = true;
@@ -90,8 +89,6 @@ const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
           : (bValue as number) - (aValue as number);
       }
     });
-
-  // console.log("filteredAndSortedBooks", filteredAndSortedBooks[0]);
 
   return (
     <div className="book-data-display">
@@ -141,18 +138,17 @@ const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
             className="filter-select"
           >
             <option value="none">None</option>
-            <option value="read-on-tbr">
-              Read books that are on at least one TBR list
+            <option value="started-on-tbr">
+              Started books that are on at least one TBR list
             </option>
             <option value="multiple-tbr">
               Books that are in more than 1 TBR list
             </option>
-            <option value="owned-not-read-no-tbr">
-              Owned books that are not read, and are not in any TBR list
+            <option value="owned-not-started-no-tbr">
+              Owned books that are not started, and are not in any TBR list
             </option>
-            <option value="read-no-rating-review">
-              Read books with no rating or review (skip Graphic Novels)
-            </option>
+            <option value="read-no-rating">Read books with no rating</option>
+            <option value="read-no-review">Read books with no review</option>
           </select>
 
           <select

@@ -136,6 +136,7 @@ const GET_USER_BOOKS_QUERY = gql`
   query GetUserBooks($userID: Int!, $offset: Int!, $limit: Int!) {
     user_books(where: {user_id: {_eq: $userID}}, offset: $offset, limit: $limit, order_by: { created_at: desc }) {
       review
+      status_id
       reading_format {
         format
         id
