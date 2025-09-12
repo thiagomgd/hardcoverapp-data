@@ -105,13 +105,3 @@ export const useHardcoverBooks = (
     enabled: !!userId, // Only run the query when userId is available
   });
 };
-
-// queryFn: async () => {
-//     const [postsResponse, usersResponse] = await Promise.all([
-//       fetchPosts(), // Replace with your actual API call
-//       fetchUsers(), // Replace with your actual API call
-//     ]);
-//     const posts = await postsResponse.json();
-//     const users = await usersResponse.json();
-//     return { posts, users };
-//   },
