@@ -1,7 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
 import type {
+  HardcoverData,
   OwnedBookData,
   OwnedBooksResponse,
+  SeriesMap,
   TBRBooksResponse,
   UserBookData,
   UserBooksMap,
@@ -71,12 +73,13 @@ const fetchTBRBooks = async (
 
 export const useHardcoverBooks = (
   userId: string,
-  onBooksLoaded?: (books: UserBooksMap) => void,
+  onBooksLoaded?: (hardcoverData: HardcoverData) => void,
 ) => {
   return useQuery({
     queryKey: ["hardcoverBooks", userId],
-    queryFn: async (): Promise<UserBooksMap> => {
+    queryFn: async (): Promise<HardcoverData> => {
       const bookData: UserBooksMap = {};
+      const seriesData: SeriesMap = {};
 
       const userBooks = await fetchUserBooks(userId);
 
@@ -99,9 +102,27 @@ export const useHardcoverBooks = (
               ? [book.edition.id]
               : undefined,
         };
+
+        if (book.book.book_series.some((series) => series.featured)) {
+          const series = book.book.book_series.find(
+            (series) => series.featured,
+          )!;
+          if (!seriesData[series.series_id]) {
+            seriesData[series.series_id] = {
+              id: series.series_id,
+              books: {},
+            };
+          }
+          if (!seriesData[series.series_id].books[book.book.id]) {
+            seriesData[series.series_id].books[book.book.id] = {
+              statusId: book.status_id ?? undefined,
+            };
+          }
+        }
       }
 
       const ownedBooks = await fetchOwnedBooks(userId);
+
       for (const book of ownedBooks) {
         if (Object.hasOwn(bookData, book.book.id)) {
           const existingBook = bookData[book.book.id]!;
@@ -117,6 +138,21 @@ export const useHardcoverBooks = (
             editionsOwned: [book.edition.id],
           };
         }
+
+        if (book.book.book_series.some((series) => series.featured)) {
+          const series = book.book.book_series.find(
+            (series) => series.featured,
+          )!;
+          if (!seriesData[series.series_id]) {
+            seriesData[series.series_id] = {
+              id: series.series_id,
+              books: {},
+            };
+          }
+          if (!seriesData[series.series_id].books[book.book.id]) {
+            seriesData[series.series_id].books[book.book.id] = {};
+          }
+        }
       }
 
       const tbrBooks = await fetchTBRBooks(userId);
@@ -129,11 +165,15 @@ export const useHardcoverBooks = (
 
       // Call the callback when data is successfully loaded
       if (onBooksLoaded) {
-        onBooksLoaded(bookData);
+        onBooksLoaded({
+          books: bookData,
+          series: seriesData,
+          seriesInfoFetched: false,
+        });
       }
 
-      return bookData;
+      return { books: bookData, series: seriesData, seriesInfoFetched: false };
     },
-    enabled: !!userId, // Only run the query when userId is available
+    enabled: false, // Disable automatic execution - only run when manually triggered
   });
 };

@@ -117,6 +117,10 @@ const GET_LIST_BOOKS_QUERY = gql`
       book {
           id
           title
+          book_series {
+            featured
+            series_id
+          }
         }
       edition {
         audio_seconds
@@ -159,6 +163,10 @@ const GET_USER_BOOKS_QUERY = gql`
         id
         title
         slug
+        book_series {
+          featured
+          series_id
+        }
       }
     }
   }
@@ -180,6 +188,23 @@ const GET_USER_LISTS_QUERY = gql`
     lists(where: {user_id: {_eq: $userID}}) {
       id
       name
+    }
+  }
+`;
+
+// GraphQL query to get series information by series IDs
+const GET_SERIES_QUERY = gql`
+  query GetSeries($seriesIds: [Int!]!) {
+    series(where: {id: {_in: $seriesIds}}) {
+      id
+      title
+      description
+      books {
+        id
+        title
+        position
+        featured
+      }
     }
   }
 `;
@@ -437,6 +462,96 @@ fastify.get('/api/tbrbooks', async (request, reply) => {
     return reply.status(500).send({
       error: 'Internal server error',
       message: 'Failed to fetch TBR books',
+      details: error.message
+    });
+  }
+});
+
+fastify.post('/api/series', async (request, reply) => {
+  const { token, seriesIds } = request.body;
+  
+  // Use environment variable if no token provided (for local development)
+  const authToken = token || process.env.HARDCOVER_TOKEN;
+  
+  if (!authToken) {
+    return reply.status(400).send({
+      error: 'User token is required',
+      message: 'Please provide a token in the request body or set HARDCOVER_TOKEN environment variable'
+    });
+  }
+
+  if (!seriesIds || !Array.isArray(seriesIds) || seriesIds.length === 0) {
+    return reply.status(400).send({
+      error: 'Series IDs are required',
+      message: 'Please provide an array of series IDs in the request body'
+    });
+  }
+
+  // Validate that all series IDs are numbers
+  const invalidIds = seriesIds.filter(id => typeof id !== 'number' || id <= 0);
+  if (invalidIds.length > 0) {
+    return reply.status(400).send({
+      error: 'Invalid series IDs',
+      message: 'All series IDs must be positive numbers',
+      invalidIds
+    });
+  }
+
+  try {
+    const variables = { seriesIds };
+    
+    const data = await graphqlRequest(HARDCOVER_API_URL, GET_SERIES_QUERY, variables, {
+      'Authorization': `Bearer ${authToken}`,
+      'Content-Type': 'application/json'
+    });
+
+    if (!data.series || !Array.isArray(data.series)) {
+      return reply.status(404).send({
+        error: 'No series found',
+        message: `No series found for the provided IDs: ${seriesIds.join(', ')}`
+      });
+    }
+
+    // Check if any requested series IDs were not found
+    const foundIds = data.series.map(series => series.id);
+    const notFoundIds = seriesIds.filter(id => !foundIds.includes(id));
+    
+    const response = {
+      success: true,
+      series: data.series,
+      count: data.series.length
+    };
+
+    // Add warning if some series were not found
+    if (notFoundIds.length > 0) {
+      response.warning = `Some series IDs were not found: ${notFoundIds.join(', ')}`;
+    }
+
+    return response;
+
+  } catch (error) {
+    fastify.log.error('Error fetching series information:', error);
+    
+    // Handle GraphQL errors
+    if (error.response && error.response.errors) {
+      return reply.status(400).send({
+        error: 'GraphQL API error',
+        message: 'Error from Hardcover API',
+        details: error.response.errors
+      });
+    }
+
+    // Handle authentication errors
+    if (error.response && error.response.status === 401) {
+      return reply.status(401).send({
+        error: 'Authentication failed',
+        message: 'Invalid or expired token'
+      });
+    }
+
+    return reply.status(500).send({
+      error: 'Internal server error',
+      message: 'Failed to fetch series information',
       details: error.message
     });
   }

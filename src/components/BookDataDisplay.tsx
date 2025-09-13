@@ -1,19 +1,19 @@
 import React, { useState } from "react";
-import type { UserBooksMap } from "../types";
+import type { HardcoverData } from "../types";
 import BookCard from "./BookCard";
 
 interface BookDataDisplayProps {
-  data: UserBooksMap;
+  data?: HardcoverData;
 }
 
-const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
+const BookDataDisplayContent: React.FC<BookDataDisplayProps> = ({ data }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [checksFilter, setChecksFilter] = useState<string>("none");
   const [sortBy, setSortBy] = useState<"title" | "author" | "rating">("title");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   // Convert UserBooksMap to array for processing
-  const books = Object.values(data);
+  const books = Object.values(data.books);
 
   const filteredAndSortedBooks = books
     .filter((book) => {
@@ -184,6 +184,17 @@ const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
           <p>No books found matching your criteria.</p>
         </div>
       )}
+    </div>
+  );
+};
+
+const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
+  return (
+    <div className="bg-white rounded-xl shadow-xl overflow-hidden">
+      <div className="flex justify-between items-center p-8 bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
+        <h2 className="text-2xl font-semibold">Your Book Collection</h2>
+      </div>
+      {data && <BookDataDisplayContent data={data} />}
     </div>
   );
 };

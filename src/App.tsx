@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 import LoadBooks from "./components/LoadBooks";
-import type { UserBooksMap } from "./types";
+import type { HardcoverData } from "./types";
 import BookDataDisplay from "./components/BookDataDisplay";
+import SeriesDataDisplay from "./components/SeriesDataDisplay";
 
 interface User {
   username: string;
@@ -9,7 +10,9 @@ interface User {
 }
 
 function App() {
-  const [userBookData, setUserData] = useState<UserBooksMap | null>(null);
+  const [userBookData, setUserData] = useState<HardcoverData | undefined>(
+    undefined,
+  );
   const [user, setUser] = useState<User | null>(null);
   const [userLoading, setUserLoading] = useState(true);
   const [userError, setUserError] = useState<string | null>(null);
@@ -41,7 +44,7 @@ function App() {
   }, []);
 
   // Handler for when books are loaded
-  const handleBooksLoaded = (booksData: UserBooksMap) => {
+  const handleBooksLoaded = (booksData: HardcoverData) => {
     setUserData(booksData);
   };
 
@@ -66,13 +69,8 @@ function App() {
       </header>
 
       <main className="py-10 px-5 mx-auto">
-        <div className="bg-white rounded-xl shadow-xl overflow-hidden">
-          <div className="flex justify-between items-center p-8 bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
-            <h2 className="text-2xl font-semibold">Your Book Collection</h2>
-          </div>
-          {userBookData && <BookDataDisplay data={userBookData} />}
-        </div>
-        {/* )} */}
+        <BookDataDisplay data={userBookData} />
+        <SeriesDataDisplay data={userBookData} />
       </main>
     </div>
   );

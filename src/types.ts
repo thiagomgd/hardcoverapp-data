@@ -33,10 +33,37 @@ export interface UserBooksMap {
   [id: number]: BookInfo; // Index signature: numeric keys map to BookInfo
 }
 
+export interface SeriesMap {
+  [id: number]: SeriesInfo;
+}
+
+export interface SeriesInfo {
+  id: number;
+  title?: string;
+  numberOfBooks?: number;
+  numberOfMainBooks?: number;
+  books: {
+    [bookId: number]: {
+      position?: number;
+      statusId?: number;
+    };
+  };
+}
+
+export interface HardcoverData {
+  books: UserBooksMap;
+  series: SeriesMap;
+  seriesInfoFetched: boolean;
+}
+
 export interface OwnedBookData {
   book: {
     id: number;
     title: string;
+    book_series: Array<{
+      featured: boolean;
+      series_id: number;
+    }>;
   };
   edition: {
     audio_seconds: number | null;
@@ -82,6 +109,10 @@ export interface UserBookData {
     id: number;
     title: string;
     slug: string;
+    book_series: Array<{
+      featured: boolean;
+      series_id: number;
+    }>;
   };
 }
 
@@ -98,4 +129,24 @@ export interface TBRBooksResponse {
   tbr_lists: { [bookId: number]: string[] };
   message?: string;
   details?: string;
+}
+
+export interface SeriesData {
+  id: number;
+  title: string;
+  description?: string;
+  books: Array<{
+    id: number;
+    title: string;
+    position?: number;
+    featured?: boolean;
+  }>;
+}
+
+export interface SeriesResponse {
+  success: boolean;
+  series: SeriesData[];
+  count: number;
+  error?: string;
+  message?: string;
 }
