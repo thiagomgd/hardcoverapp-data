@@ -4,6 +4,7 @@ import type {
   OwnedBookData,
   OwnedBooksResponse,
   SeriesMap,
+  SeriesResponse,
   TBRBooksResponse,
   UserBookData,
   UserBooksMap,
@@ -68,6 +69,28 @@ const fetchTBRBooks = async (
     return data.tbr_lists;
   } else {
     throw new Error(data.message || "Failed to load TBR books");
+  }
+};
+
+const fetchSeriesInfo = async (seriesIds: number[]): Promise<SeriesMap> => {
+  if (!seriesIds || !Array.isArray(seriesIds) || seriesIds.length === 0) {
+    throw new Error("Series IDs are required");
+  }
+
+  const response = await fetch("/api/series", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ seriesIds }),
+  });
+
+  const data: SeriesResponse = await response.json();
+
+  if (response.ok && data.success) {
+    return data.series;
+  } else {
+    throw new Error(data.error || data.message || "Failed to load series info");
   }
 };
 
@@ -163,16 +186,32 @@ export const useHardcoverBooks = (
         }
       }
 
+      const seriesInfo = await fetchSeriesInfo(
+        Object.keys(seriesData).map(Number),
+      );
+
+      for (const [seriesId, info] of Object.entries(seriesInfo)) {
+        const seriesIdNum = parseInt(seriesId);
+        // TODO: merge books info?
+        if (seriesData[seriesIdNum]) {
+          seriesData[seriesIdNum] = {
+            ...seriesData[seriesIdNum],
+            ...info,
+          };
+        } else {
+          seriesData[seriesIdNum] = info;
+        }
+      }
+
       // Call the callback when data is successfully loaded
       if (onBooksLoaded) {
         onBooksLoaded({
           books: bookData,
           series: seriesData,
-          seriesInfoFetched: false,
         });
       }
 
-      return { books: bookData, series: seriesData, seriesInfoFetched: false };
+      return { books: bookData, series: seriesData };
     },
     enabled: false, // Disable automatic execution - only run when manually triggered
   });

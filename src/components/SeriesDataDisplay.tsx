@@ -335,7 +335,7 @@ const SeriesDataDisplay: React.FC<SeriesDataDisplayProps> = ({ data }) => {
       <div className="flex justify-between items-center p-8 bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
         <h2 className="text-2xl font-semibold">Your Series Collection</h2>
       </div>
-      {data?.seriesInfoFetched && <SeriesDataDisplayContent data={data} />}
+      {data && <SeriesDataDisplayContent data={data} />}
     </div>
   );
 };

@@ -197,13 +197,11 @@ const GET_SERIES_QUERY = gql`
   query GetSeries($seriesIds: [Int!]!) {
     series(where: {id: {_in: $seriesIds}}) {
       id
-      title
+      name
       description
-      books {
-        id
-        title
+      book_series {
         position
-        featured
+        book_id
       }
     }
   }

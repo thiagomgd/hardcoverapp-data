@@ -53,7 +53,6 @@ export interface SeriesInfo {
 export interface HardcoverData {
   books: UserBooksMap;
   series: SeriesMap;
-  seriesInfoFetched: boolean;
 }
 
 export interface OwnedBookData {
@@ -133,13 +132,11 @@ export interface TBRBooksResponse {
 
 export interface SeriesData {
   id: number;
-  title: string;
+  name: string;
   description?: string;
-  books: Array<{
-    id: number;
-    title: string;
+  book_series: Array<{
+    book_id: number;
     position?: number;
-    featured?: boolean;
   }>;
 }
 
