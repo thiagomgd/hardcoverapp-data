@@ -38,7 +38,7 @@ export interface SeriesMap {
 }
 
 export interface SeriesInfo extends SeriesData {
-  books_read?: Set<number>;
+  books_read?: Map<number, number>;
 }
 
 export interface HardcoverData {
@@ -53,6 +53,7 @@ export interface OwnedBookData {
     book_series: Array<{
       featured: boolean;
       series_id: number;
+      position: number;
     }>;
   };
   edition: {
@@ -102,6 +103,7 @@ export interface UserBookData {
     book_series: Array<{
       featured: boolean;
       series_id: number;
+      position: number;
     }>;
   };
 }

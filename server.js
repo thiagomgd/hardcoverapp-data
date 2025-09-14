@@ -120,6 +120,7 @@ const GET_LIST_BOOKS_QUERY = gql`
           book_series {
             featured
             series_id
+            position
           }
         }
       edition {
@@ -166,6 +167,7 @@ const GET_USER_BOOKS_QUERY = gql`
         book_series {
           featured
           series_id
+          position
         }
       }
     }

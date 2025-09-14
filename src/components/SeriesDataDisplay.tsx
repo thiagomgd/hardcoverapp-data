@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { HardcoverData } from "../types";
+import type { HardcoverData, SeriesInfo } from "../types";
 
 interface SeriesDataDisplayContentProps {
   data: HardcoverData;
@@ -20,9 +20,8 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 30;
 
-  console.log("SeriesDataDisplayContent", data);
   // Convert SeriesMap to array for processing
-  const seriesObj = Object.values(data.series);
+  const seriesObj: SeriesInfo[] = Object.values(data.series);
 
   // Reset to first page when filters change
   React.useEffect(() => {
@@ -230,9 +229,10 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
                   Books in Collection:
                 </h4>
                 <div className="text-xs text-gray-600 space-y-1 max-h-32 overflow-y-auto">
-                  {Array.from(seriesItem.books_read as Set<number>)
+                  {Array.from(seriesItem.books_read)
+                    .sort((a, b) => a[1] - b[1])
                     .slice(0, 10)
-                    .map((bookId) => {
+                    .map(([bookId, position]) => {
                       const book = data.books[bookId];
                       return (
                         <div
@@ -240,6 +240,7 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
                           className="flex justify-between items-center"
                         >
                           <span>{book?.title || `Book #${bookId}`}</span>
+                          <span className="text-gray-500">#{position}</span>
                         </div>
                       );
                     })}

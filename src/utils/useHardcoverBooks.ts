@@ -107,7 +107,7 @@ export const useHardcoverBooks = (
     queryKey: ["hardcoverBooks", userId],
     queryFn: async (): Promise<HardcoverData> => {
       const bookData: UserBooksMap = {};
-      const seriesTempData = new Map<number, Set<number>>();
+      const seriesTempData = new Map<number, Map<number, number>>();
 
       const userBooks = await fetchUserBooks(userId);
 
@@ -136,10 +136,12 @@ export const useHardcoverBooks = (
             (series) => series.featured,
           )!;
           if (!seriesTempData.has(series.series_id)) {
-            seriesTempData.set(series.series_id, new Set());
+            seriesTempData.set(series.series_id, new Map());
           }
 
-          seriesTempData.get(series.series_id)!.add(book.book.id);
+          seriesTempData
+            .get(series.series_id)!
+            .set(book.book.id, series.position);
         }
       }
 
@@ -166,10 +168,12 @@ export const useHardcoverBooks = (
             (series) => series.featured,
           )!;
           if (!seriesTempData.has(series.series_id)) {
-            seriesTempData.set(series.series_id, new Set());
+            seriesTempData.set(series.series_id, new Map());
           }
 
-          seriesTempData.get(series.series_id)!.add(book.book.id);
+          seriesTempData
+            .get(series.series_id)!
+            .set(book.book.id, series.position);
         }
       }
 
@@ -184,8 +188,6 @@ export const useHardcoverBooks = (
       const seriesInfo = await fetchSeriesInfo(
         Array.from(seriesTempData.keys()),
       );
-      console.debug("Series info", seriesInfo);
-      console.debug("Series temp data", seriesTempData);
 
       // Transfer books_read data from seriesTempData to seriesData
       for (const [seriesId, booksRead] of seriesTempData) {
