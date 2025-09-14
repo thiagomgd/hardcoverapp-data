@@ -198,11 +198,11 @@ const GET_SERIES_QUERY = gql`
     series(where: {id: {_in: $seriesIds}}) {
       id
       name
-      description
-      book_series {
-        position
-        book_id
-      }
+      books_count
+      primary_books_count
+      slug
+      state
+      is_completed
     }
   }
 `;

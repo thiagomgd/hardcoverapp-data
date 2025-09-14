@@ -88,7 +88,12 @@ const fetchSeriesInfo = async (seriesIds: number[]): Promise<SeriesMap> => {
   const data: SeriesResponse = await response.json();
 
   if (response.ok && data.success) {
-    return data.series;
+    // Convert array of SeriesData to SeriesMap
+    const seriesMap: SeriesMap = {};
+    for (const series of data.series) {
+      seriesMap[series.id] = series;
+    }
+    return seriesMap;
   } else {
     throw new Error(data.error || data.message || "Failed to load series info");
   }
@@ -102,7 +107,7 @@ export const useHardcoverBooks = (
     queryKey: ["hardcoverBooks", userId],
     queryFn: async (): Promise<HardcoverData> => {
       const bookData: UserBooksMap = {};
-      const seriesData: SeriesMap = {};
+      const seriesTempData = new Map<number, Set<number>>();
 
       const userBooks = await fetchUserBooks(userId);
 
@@ -130,17 +135,11 @@ export const useHardcoverBooks = (
           const series = book.book.book_series.find(
             (series) => series.featured,
           )!;
-          if (!seriesData[series.series_id]) {
-            seriesData[series.series_id] = {
-              id: series.series_id,
-              books: {},
-            };
+          if (!seriesTempData.has(series.series_id)) {
+            seriesTempData.set(series.series_id, new Set());
           }
-          if (!seriesData[series.series_id].books[book.book.id]) {
-            seriesData[series.series_id].books[book.book.id] = {
-              statusId: book.status_id ?? undefined,
-            };
-          }
+
+          seriesTempData.get(series.series_id)!.add(book.book.id);
         }
       }
 
@@ -166,15 +165,11 @@ export const useHardcoverBooks = (
           const series = book.book.book_series.find(
             (series) => series.featured,
           )!;
-          if (!seriesData[series.series_id]) {
-            seriesData[series.series_id] = {
-              id: series.series_id,
-              books: {},
-            };
+          if (!seriesTempData.has(series.series_id)) {
+            seriesTempData.set(series.series_id, new Set());
           }
-          if (!seriesData[series.series_id].books[book.book.id]) {
-            seriesData[series.series_id].books[book.book.id] = {};
-          }
+
+          seriesTempData.get(series.series_id)!.add(book.book.id);
         }
       }
 
@@ -187,19 +182,15 @@ export const useHardcoverBooks = (
       }
 
       const seriesInfo = await fetchSeriesInfo(
-        Object.keys(seriesData).map(Number),
+        Array.from(seriesTempData.keys()),
       );
+      console.debug("Series info", seriesInfo);
+      console.debug("Series temp data", seriesTempData);
 
-      for (const [seriesId, info] of Object.entries(seriesInfo)) {
-        const seriesIdNum = parseInt(seriesId);
-        // TODO: merge books info?
-        if (seriesData[seriesIdNum]) {
-          seriesData[seriesIdNum] = {
-            ...seriesData[seriesIdNum],
-            ...info,
-          };
-        } else {
-          seriesData[seriesIdNum] = info;
+      // Transfer books_read data from seriesTempData to seriesData
+      for (const [seriesId, booksRead] of seriesTempData) {
+        if (seriesInfo[seriesId]) {
+          seriesInfo[seriesId].books_read = booksRead;
         }
       }
 
@@ -207,11 +198,11 @@ export const useHardcoverBooks = (
       if (onBooksLoaded) {
         onBooksLoaded({
           books: bookData,
-          series: seriesData,
+          series: seriesInfo,
         });
       }
 
-      return { books: bookData, series: seriesData };
+      return { books: bookData, series: seriesInfo };
     },
     enabled: false, // Disable automatic execution - only run when manually triggered
   });

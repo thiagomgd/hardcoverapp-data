@@ -37,17 +37,8 @@ export interface SeriesMap {
   [id: number]: SeriesInfo;
 }
 
-export interface SeriesInfo {
-  id: number;
-  title?: string;
-  numberOfBooks?: number;
-  numberOfMainBooks?: number;
-  books: {
-    [bookId: number]: {
-      position?: number;
-      statusId?: number;
-    };
-  };
+export interface SeriesInfo extends SeriesData {
+  books_read?: Set<number>;
 }
 
 export interface HardcoverData {
@@ -133,11 +124,12 @@ export interface TBRBooksResponse {
 export interface SeriesData {
   id: number;
   name: string;
+  books_count: number;
+  primary_books_count: number;
+  slug: string;
+  state: string;
   description?: string;
-  book_series: Array<{
-    book_id: number;
-    position?: number;
-  }>;
+  is_completed?: boolean;
 }
 
 export interface SeriesResponse {

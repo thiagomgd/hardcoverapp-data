@@ -14,12 +14,13 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [sortBy, setSortBy] = useState<
-    "title" | "numberOfBooks" | "numberOfMainBooks"
-  >("title");
+    "name" | "books_count" | "primary_books_count"
+  >("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 30;
 
+  console.log("SeriesDataDisplayContent", data);
   // Convert SeriesMap to array for processing
   const seriesObj = Object.values(data.series);
 
@@ -31,8 +32,8 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
   const filteredAndSortedSeries = seriesObj
     .filter((seriesItem) => {
       const matchesSearch =
-        seriesItem.title &&
-        seriesItem.title.toLowerCase().includes(searchTerm.toLowerCase());
+        seriesItem.name &&
+        seriesItem.name.toLowerCase().includes(searchTerm.toLowerCase());
       return matchesSearch;
     })
     .sort((a, b) => {
@@ -40,21 +41,21 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
       let bValue: string | number;
 
       switch (sortBy) {
-        case "title":
-          aValue = a.title || "";
-          bValue = b.title || "";
+        case "name":
+          aValue = a.name || "";
+          bValue = b.name || "";
           break;
-        case "numberOfBooks":
-          aValue = a.numberOfBooks || 0;
-          bValue = b.numberOfBooks || 0;
+        case "books_count":
+          aValue = a.books_count || 0;
+          bValue = b.books_count || 0;
           break;
-        case "numberOfMainBooks":
-          aValue = a.numberOfMainBooks || 0;
-          bValue = b.numberOfMainBooks || 0;
+        case "primary_books_count":
+          aValue = a.primary_books_count || 0;
+          bValue = b.primary_books_count || 0;
           break;
         default:
-          aValue = a.title || "";
-          bValue = b.title || "";
+          aValue = a.name || "";
+          bValue = b.name || "";
       }
 
       if (typeof aValue === "string" && typeof bValue === "string") {
@@ -89,15 +90,15 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
 
   // Calculate series statistics
   const totalBooksInSeries = seriesObj.reduce(
-    (sum, s) => sum + (s.numberOfBooks || 0),
+    (sum, s) => sum + (s.books_count || 0),
     0,
   );
   const totalMainBooksInSeries = seriesObj.reduce(
-    (sum, s) => sum + (s.numberOfMainBooks || 0),
+    (sum, s) => sum + (s.primary_books_count || 0),
     0,
   );
   const seriesWithMainBooks = seriesObj.filter(
-    (s) => (s.numberOfMainBooks || 0) > 0,
+    (s) => (s.primary_books_count || 0) > 0,
   ).length;
 
   return (
@@ -149,16 +150,16 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
             onChange={(e) =>
               setSortBy(
                 e.target.value as
-                  | "title"
-                  | "numberOfBooks"
-                  | "numberOfMainBooks",
+                  | "name"
+                  | "books_count"
+                  | "primary_books_count",
               )
             }
             className="px-4 py-3 border-2 border-gray-200 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:border-blue-500"
           >
-            <option value="title">Sort by Title</option>
-            <option value="numberOfBooks">Sort by Total Books</option>
-            <option value="numberOfMainBooks">Sort by Main Books</option>
+            <option value="name">Sort by Title</option>
+            <option value="books_count">Sort by Total Books</option>
+            <option value="primary_books_count">Sort by Main Books</option>
           </select>
 
           <button
@@ -190,76 +191,61 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
           >
             <div className="mb-4">
               <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
-                {seriesItem.title || `Series #${seriesItem.id}`}
+                {seriesItem.name || `Series #${seriesItem.id}`}
               </h3>
               <div className="text-sm text-gray-600 space-y-1">
                 <div className="flex justify-between">
                   <span>Series ID:</span>
                   <span className="font-medium">{seriesItem.id}</span>
                 </div>
-                {seriesItem.numberOfBooks !== undefined && (
+                {seriesItem.books_count !== undefined && (
                   <div className="flex justify-between">
                     <span>Total Books:</span>
                     <span className="font-medium">
-                      {seriesItem.numberOfBooks}
+                      {seriesItem.books_count}
                     </span>
                   </div>
                 )}
-                {seriesItem.numberOfMainBooks !== undefined && (
+                {seriesItem.primary_books_count !== undefined && (
                   <div className="flex justify-between">
                     <span>Main Books:</span>
                     <span className="font-medium">
-                      {seriesItem.numberOfMainBooks}
+                      {seriesItem.primary_books_count}
                     </span>
                   </div>
                 )}
                 <div className="flex justify-between">
                   <span>Books in Collection:</span>
                   <span className="font-medium">
-                    {Object.keys(seriesItem.books).length}
+                    {seriesItem.books_read ? seriesItem.books_read.size : 0}
                   </span>
                 </div>
               </div>
             </div>
 
             {/* Books in this series */}
-            {Object.keys(seriesItem.books).length > 0 && (
+            {seriesItem.books_read && seriesItem.books_read.size > 0 && (
               <div className="mt-4 pt-4 border-t border-gray-100">
                 <h4 className="text-sm font-medium text-gray-700 mb-2">
                   Books in Collection:
                 </h4>
                 <div className="text-xs text-gray-600 space-y-1 max-h-32 overflow-y-auto">
-                  {Object.entries(seriesItem.books)
+                  {Array.from(seriesItem.books_read as Set<number>)
                     .slice(0, 10)
-                    .map(([bookId, bookInfo]) => {
-                      const book = bookInfo as {
-                        position?: number;
-                        statusId?: number;
-                      };
+                    .map((bookId) => {
+                      const book = data.books[bookId];
                       return (
                         <div
                           key={bookId}
                           className="flex justify-between items-center"
                         >
-                          <span>Book #{bookId}</span>
-                          <div className="flex gap-2">
-                            {book.position && (
-                              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs">
-                                #{book.position}
-                              </span>
-                            )}
-                            {book.statusId && (
-                              <span className="bg-green-100 text-green-800 px-2 py-1 rounded text-xs">
-                                Status: {book.statusId}
-                              </span>
-                            )}
-                          </div>
+                          <span>{book?.title || `Book #${bookId}`}</span>
                         </div>
                       );
                     })}
-                  {Object.keys(seriesItem.books).length > 10 && (
+                  {seriesItem.books_read.size > 10 && (
                     <div className="text-gray-500 italic">
-                      ... and {Object.keys(seriesItem.books).length - 10} more
+                      ... and {seriesItem.books_read.size - 10} more
                     </div>
                   )}
                 </div>
