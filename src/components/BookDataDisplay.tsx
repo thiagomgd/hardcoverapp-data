@@ -2,15 +2,22 @@ import React, { useState } from "react";
 import type { HardcoverData } from "../types";
 import BookCard from "./BookCard";
 
+interface BookDataDisplayContentProps {
+  data: HardcoverData;
+}
 interface BookDataDisplayProps {
   data?: HardcoverData;
 }
 
-const BookDataDisplayContent: React.FC<BookDataDisplayProps> = ({ data }) => {
+const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
+  data,
+}) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [checksFilter, setChecksFilter] = useState<string>("none");
   const [sortBy, setSortBy] = useState<"title" | "author" | "rating">("title");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [booksPerPage, setBooksPerPage] = useState(20);
 
   // Convert UserBooksMap to array for processing
   const books = Object.values(data.books);
@@ -89,16 +96,26 @@ const BookDataDisplayContent: React.FC<BookDataDisplayProps> = ({ data }) => {
       }
     });
 
+  // Pagination logic
+  const totalBooks = filteredAndSortedBooks.length;
+  const totalPages = Math.ceil(totalBooks / booksPerPage);
+  const startIndex = (currentPage - 1) * booksPerPage;
+  const endIndex = startIndex + booksPerPage;
+  const currentBooks = filteredAndSortedBooks.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, checksFilter, sortBy, sortOrder, booksPerPage]);
+
   return (
     <div className="w-full max-w-6xl mx-auto p-5">
       <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-8 rounded-xl mb-8">
         <h2 className="text-3xl font-bold mb-5">📚 Book Data Summary</h2>
         <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
           <div className="text-center">
-            <span className="block text-3xl font-bold mb-1">
-              {books.length}
-            </span>
-            <span className="text-sm opacity-90">Total Books</span>
+            <span className="block text-3xl font-bold mb-1">{totalBooks}</span>
+            <span className="text-sm opacity-90">Filtered Books</span>
           </div>
           <div className="text-center">
             <span className="block text-3xl font-bold mb-1">
@@ -119,6 +136,13 @@ const BookDataDisplayContent: React.FC<BookDataDisplayProps> = ({ data }) => {
             <span className="text-sm opacity-90">Books in TBR Lists</span>
           </div>
         </div>
+        <div className="mt-4 text-center">
+          <span className="text-sm opacity-90">
+            Showing {startIndex + 1}-{Math.min(endIndex, totalBooks)} of{" "}
+            {totalBooks} books
+            {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
+          </span>
+        </div>
       </div>
 
       <div className="flex flex-wrap gap-4 mb-8 items-center">
@@ -133,6 +157,17 @@ const BookDataDisplayContent: React.FC<BookDataDisplayProps> = ({ data }) => {
         </div>
 
         <div className="flex gap-3 items-center">
+          <select
+            value={booksPerPage}
+            onChange={(e) => setBooksPerPage(Number(e.target.value))}
+            className="px-4 py-3 border-2 border-gray-200 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:border-blue-500"
+          >
+            <option value={10}>10 per page</option>
+            <option value={20}>20 per page</option>
+            <option value={50}>50 per page</option>
+            <option value={100}>100 per page</option>
+          </select>
+
           <select
             value={checksFilter}
             onChange={(e) => setChecksFilter(e.target.value)}
@@ -174,14 +209,70 @@ const BookDataDisplayContent: React.FC<BookDataDisplayProps> = ({ data }) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-        {filteredAndSortedBooks.map((book, index) => (
-          <BookCard key={`${book.id}-${index}`} book={book} index={index} />
+        {currentBooks.map((book, index) => (
+          <BookCard
+            key={`${book.id}-${index}`}
+            book={book}
+            index={startIndex + index}
+          />
         ))}
       </div>
 
-      {filteredAndSortedBooks.length === 0 && (
+      {totalBooks === 0 && (
         <div className="text-center py-10 text-gray-500 text-lg">
           <p>No books found matching your criteria.</p>
+        </div>
+      )}
+
+      {/* Pagination Controls */}
+      {totalPages > 1 && (
+        <div className="flex justify-center items-center gap-4 mt-8">
+          <button
+            onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+            disabled={currentPage === 1}
+            className="px-4 py-2 border-2 border-gray-200 rounded-lg bg-white cursor-pointer text-sm font-medium hover:bg-gray-50 transition-all focus:outline-none focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Previous
+          </button>
+
+          <div className="flex gap-2">
+            {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+              let pageNum;
+              if (totalPages <= 5) {
+                pageNum = i + 1;
+              } else if (currentPage <= 3) {
+                pageNum = i + 1;
+              } else if (currentPage >= totalPages - 2) {
+                pageNum = totalPages - 4 + i;
+              } else {
+                pageNum = currentPage - 2 + i;
+              }
+
+              return (
+                <button
+                  key={pageNum}
+                  onClick={() => setCurrentPage(pageNum)}
+                  className={`px-3 py-2 border-2 rounded-lg text-sm font-medium transition-all focus:outline-none focus:border-blue-500 ${
+                    currentPage === pageNum
+                      ? "border-blue-500 bg-blue-50 text-blue-700"
+                      : "border-gray-200 bg-white hover:bg-gray-50"
+                  }`}
+                >
+                  {pageNum}
+                </button>
+              );
+            })}
+          </div>
+
+          <button
+            onClick={() =>
+              setCurrentPage(Math.min(totalPages, currentPage + 1))
+            }
+            disabled={currentPage === totalPages}
+            className="px-4 py-2 border-2 border-gray-200 rounded-lg bg-white cursor-pointer text-sm font-medium hover:bg-gray-50 transition-all focus:outline-none focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            Next
+          </button>
         </div>
       )}
     </div>
