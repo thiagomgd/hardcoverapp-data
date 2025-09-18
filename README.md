@@ -2,7 +2,7 @@
 
 App to check some data and stats on Hardcover.app.
 
-Very early WIP.
+Very early WIP - commits are not being added directly to master until we get to a `V1` release.
 
 ## Setup
 
@@ -49,13 +49,14 @@ The server will start on `http://localhost:3000`
 
 ### Checks
 
-- [ ] TBR lists check
-  - [ ] read books on TBR lists
-  - [ ] unread books on multiple TBR lists
+- [X] TBR lists check (requires `TBR: ` lists)
+  - [X] read books on TBR lists
+  - [X] unread books on multiple TBR lists
 - [ ] Owned books that have a different version marked as read
-- [ ] Read boks with no rating or review (option to skip graphic novels/light novels)
+- [X] Read boks with no rating or review (option to skip graphic novels/light novels)
 - [ ] Books without type (Book, Novella, Light Novel)
-
+- [ ] Series status check (requires `Series: ` lists with 1st book in each series)
+  - [ ] Series that are not in any list (maybe skip completed series?)
 
 ### Stats And Info
 
