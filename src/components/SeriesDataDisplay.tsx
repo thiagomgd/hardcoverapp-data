@@ -17,23 +17,68 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
     "name" | "books_count" | "primary_books_count"
   >("name");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [seriesStatusFilter, setSeriesStatusFilter] = useState<string>("");
+  const [statusCountFilter, setStatusCountFilter] = useState<string>("");
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 30;
 
   // Convert SeriesMap to array for processing
   const seriesObj: SeriesInfo[] = Object.values(data.series);
 
+  // Helper function to get status count for a series
+  const getSeriesStatusCount = React.useCallback(
+    (seriesId: number): number => {
+      if (!data.seriesStatus) {
+        return 0;
+      }
+      let count = 0;
+      for (const statusArray of Object.values(data.seriesStatus)) {
+        if (statusArray && statusArray.includes(seriesId)) {
+          count++;
+        }
+      }
+      return count;
+    },
+    [data.seriesStatus],
+  );
+
+  // Calculate status count statistics for UI
+  const statusCountStats = React.useMemo(() => {
+    const stats = { none: 0, single: 0, multiple: 0 };
+    seriesObj.forEach((series) => {
+      const count = getSeriesStatusCount(series.id);
+      if (count === 0) stats.none++;
+      else if (count === 1) stats.single++;
+      else stats.multiple++;
+    });
+    return stats;
+  }, [seriesObj, getSeriesStatusCount]);
+
   // Reset to first page when filters change
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, sortBy, sortOrder]);
+  }, [searchTerm, sortBy, sortOrder, seriesStatusFilter, statusCountFilter]);
 
   const filteredAndSortedSeries = seriesObj
     .filter((seriesItem) => {
       const matchesSearch =
         seriesItem.name &&
         seriesItem.name.toLowerCase().includes(searchTerm.toLowerCase());
-      return matchesSearch;
+
+      const matchesStatus =
+        !seriesStatusFilter ||
+        (data.seriesStatus &&
+          data.seriesStatus[seriesStatusFilter] &&
+          data.seriesStatus[seriesStatusFilter].includes(seriesItem.id));
+
+      const statusCount = getSeriesStatusCount(seriesItem.id);
+      const matchesStatusCount =
+        !statusCountFilter ||
+        (statusCountFilter === "none" && statusCount === 0) ||
+        (statusCountFilter === "single" && statusCount === 1) ||
+        (statusCountFilter === "multiple" && statusCount > 1);
+
+      return matchesSearch && matchesStatus && matchesStatusCount;
     })
     .sort((a, b) => {
       let aValue: string | number;
@@ -144,6 +189,35 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
         </div>
 
         <div className="flex gap-3 items-center">
+          <select
+            value={seriesStatusFilter}
+            onChange={(e) => setSeriesStatusFilter(e.target.value)}
+            className="px-4 py-3 border-2 border-gray-200 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:border-blue-500"
+          >
+            <option value="">All Statuses</option>
+            {data.seriesStatus &&
+              Object.keys(data.seriesStatus).map((statusName) => (
+                <option key={statusName} value={statusName}>
+                  {statusName} ({data.seriesStatus[statusName].length})
+                </option>
+              ))}
+          </select>
+
+          <select
+            value={statusCountFilter}
+            onChange={(e) => setStatusCountFilter(e.target.value)}
+            className="px-4 py-3 border-2 border-gray-200 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:border-blue-500"
+          >
+            <option value="">All Status Counts</option>
+            <option value="none">No Status ({statusCountStats.none})</option>
+            <option value="single">
+              Single Status ({statusCountStats.single})
+            </option>
+            <option value="multiple">
+              Multiple Statuses ({statusCountStats.multiple})
+            </option>
+          </select>
+
           <select
             value={sortBy}
             onChange={(e) =>

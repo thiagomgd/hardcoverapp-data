@@ -44,6 +44,7 @@ export interface SeriesInfo extends SeriesData {
 export interface HardcoverData {
   books: UserBooksMap;
   series: SeriesMap;
+  seriesStatus: { [statusName: string]: number[] };
 }
 
 export interface OwnedBookData {
@@ -140,4 +141,11 @@ export interface SeriesResponse {
   count: number;
   error?: string;
   message?: string;
+}
+
+export interface SeriesStatusResponse {
+  success: boolean;
+  series_status: { [statusName: string]: number[] };
+  message?: string;
+  error?: string;
 }

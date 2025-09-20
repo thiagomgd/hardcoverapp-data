@@ -5,6 +5,7 @@ import type {
   OwnedBooksResponse,
   SeriesMap,
   SeriesResponse,
+  SeriesStatusResponse,
   TBRBooksResponse,
   UserBookData,
   UserBooksMap,
@@ -99,6 +100,29 @@ const fetchSeriesInfo = async (seriesIds: number[]): Promise<SeriesMap> => {
   }
 };
 
+const fetchSeriesStatuses = async (
+  userId: string,
+): Promise<{ [seriesName: string]: number[] }> => {
+  if (!userId) {
+    throw new Error("User ID is required");
+  }
+
+  // For now, we'll let the server use the environment variable
+  // TODO: pass the token - we have to ask user for it still
+  const response = await fetch(
+    `/api/seriesstatus?userID=${encodeURIComponent(userId)}`,
+  );
+  const data: SeriesStatusResponse = await response.json();
+
+  if (response.ok && data.success) {
+    return data.series_status;
+  } else {
+    throw new Error(
+      data.error || data.message || "Failed to load series statuses",
+    );
+  }
+};
+
 export const useHardcoverBooks = (
   userId: string,
   onBooksLoaded?: (hardcoverData: HardcoverData) => void,
@@ -177,6 +201,7 @@ export const useHardcoverBooks = (
         }
       }
 
+      // TODO: should get all lists on same requests for user books and owned books
       const tbrBooks = await fetchTBRBooks(userId);
       for (const [bookId, tbrLists] of Object.entries(tbrBooks)) {
         const bookIdNum = parseInt(bookId);
@@ -196,15 +221,22 @@ export const useHardcoverBooks = (
         }
       }
 
+      const seriesStatus = await fetchSeriesStatuses(userId);
+
       // Call the callback when data is successfully loaded
       if (onBooksLoaded) {
         onBooksLoaded({
           books: bookData,
           series: seriesInfo,
+          seriesStatus: seriesStatus,
         });
       }
 
-      return { books: bookData, series: seriesInfo };
+      return {
+        books: bookData,
+        series: seriesInfo,
+        seriesStatus: seriesStatus,
+      };
     },
     enabled: false, // Disable automatic execution - only run when manually triggered
   });

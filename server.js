@@ -556,7 +556,7 @@ fastify.get('/api/seriesstatus', async (request, reply) => {
 
     return {
       success: true,
-      series_lists: seriesStatusData
+      series_status: seriesStatusData
     };
 
   } catch (error) {
