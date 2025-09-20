@@ -467,6 +467,126 @@ fastify.get('/api/tbrbooks', async (request, reply) => {
   }
 });
 
+fastify.get('/api/seriesstatus', async (request, reply) => {
+  const { token, userID } = request.query;
+  
+  // Use environment variable if no token provided (for local development)
+  const authToken = token || process.env.HARDCOVER_TOKEN;
+  
+  if (!authToken) {
+    return reply.status(400).send({
+      error: 'User token is required',
+      message: 'Please provide a token parameter or set HARDCOVER_TOKEN environment variable'
+    });
+  }
+
+  if (!userID) {
+    return reply.status(400).send({
+      error: 'User ID is required',
+      message: 'Please provide a userID parameter'
+    });
+  }
+
+  try {
+    // First, fetch all user lists
+    const listsData = await graphqlRequest(HARDCOVER_API_URL, GET_USER_LISTS_QUERY, { userID }, {
+      'Authorization': `Bearer ${authToken}`,
+      'Content-Type': 'application/json'
+    });
+
+    if (!listsData.lists || !Array.isArray(listsData.lists)) {
+      return reply.status(404).send({
+        error: 'No lists found',
+        message: `No lists found for user ID: ${userID}`
+      });
+    }
+
+    // Filter lists that start with "series: "
+    const seriesLists = listsData.lists.filter(list => list.name.toLowerCase().startsWith('series: '));
+
+    if (seriesLists.length === 0) {
+      return {
+        success: true,
+        series_lists: {},
+        message: 'No series lists found'
+      };
+    }
+
+    // Fetch books for each series list and extract series IDs
+    const seriesStatusData = {};
+    
+    for (const seriesList of seriesLists) {
+      let offset = 0;
+      const limit = 100;
+      const seriesIds = new Set();
+
+      // Fetch all pages for this list
+      while (true) {
+        const variables = { userID, offset, limit, listName: seriesList.name };
+        
+        const listBooksData = await graphqlRequest(HARDCOVER_API_URL, GET_LIST_BOOKS_QUERY, variables, {
+          'Authorization': `Bearer ${authToken}`,
+          'Content-Type': 'application/json'
+        });
+
+        if (listBooksData.list_books && Array.isArray(listBooksData.list_books)) {
+          for (const book of listBooksData.list_books) {
+            if (book.book.book_series && Array.isArray(book.book.book_series)) {
+              for (const bookSeries of book.book.book_series) {
+                if (bookSeries.series_id) {
+                  seriesIds.add(bookSeries.series_id);
+                }
+              }
+            }
+          }
+        }
+
+        // If we got fewer books than the limit, we've reached the end
+        if (!listBooksData.list_books || listBooksData.list_books.length < limit) {
+          break;
+        }
+
+        offset += limit;
+      }
+
+      // Convert Set to Array for JSON serialization and remove "series: " prefix from list name
+      const cleanListName = seriesList.name.replace(/^series:\s*/i, '');
+      seriesStatusData[cleanListName] = Array.from(seriesIds);
+    }
+
+    return {
+      success: true,
+      series_lists: seriesStatusData
+    };
+
+  } catch (error) {
+    fastify.log.error('Error fetching series status:', error);
+    
+    // Handle GraphQL errors
+    if (error.response && error.response.errors) {
+      return reply.status(400).send({
+        error: 'GraphQL API error',
+        message: 'Error from Hardcover API',
+        details: error.response.errors
+      });
+    }
+
+    // Handle authentication errors
+    if (error.response && error.response.status === 401) {
+      return reply.status(401).send({
+        error: 'Authentication failed',
+        message: 'Invalid or expired token'
+      });
+    }
+
+    return reply.status(500).send({
+      error: 'Internal server error',
+      message: 'Failed to fetch series status',
+      details: error.message
+    });
+  }
+});
+
 fastify.post('/api/series', async (request, reply) => {
   const { token, seriesIds } = request.body;
   
