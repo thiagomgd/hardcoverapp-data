@@ -3,6 +3,7 @@ import LoadBooks from "./components/LoadBooks";
 import type { HardcoverData } from "./types";
 import BookDataDisplay from "./components/BookDataDisplay";
 import SeriesDataDisplay from "./components/SeriesDataDisplay";
+import CompareDataDisplay from "./components/CompareDataDisplay";
 
 interface User {
   username: string;
@@ -16,7 +17,9 @@ function App() {
   const [user, setUser] = useState<User | null>(null);
   const [userLoading, setUserLoading] = useState(true);
   const [userError, setUserError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState<"books" | "series">("books");
+  const [activeTab, setActiveTab] = useState<"books" | "series" | "compare">(
+    "books"
+  );
 
   // Fetch user information on app load
   useEffect(() => {
@@ -94,6 +97,16 @@ function App() {
               >
                 📖 Series
               </button>
+              <button
+                onClick={() => setActiveTab("compare")}
+                className={`px-6 py-4 text-sm font-medium transition-colors duration-200 ${
+                  activeTab === "compare"
+                    ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                🔄 Compare With Previous Data
+              </button>
             </nav>
           </div>
 
@@ -102,6 +115,9 @@ function App() {
             {activeTab === "books" && <BookDataDisplay data={userBookData} />}
             {activeTab === "series" && (
               <SeriesDataDisplay data={userBookData} />
+            )}
+            {activeTab === "compare" && (
+              <CompareDataDisplay currentData={userBookData} />
             )}
           </div>
         </div>

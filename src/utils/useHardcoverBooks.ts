@@ -13,7 +13,7 @@ import type {
 } from "../types";
 
 const fetchOwnedBooks = async (
-  userId: string,
+  userId: string
 ): Promise<Array<OwnedBookData>> => {
   if (!userId) {
     throw new Error("User ID is required");
@@ -22,7 +22,7 @@ const fetchOwnedBooks = async (
   // For now, we'll let the server use the environment variable
   // TODO: pass the token - we have to ask user for it still
   const response = await fetch(
-    `/api/owned?userID=${encodeURIComponent(userId)}`,
+    `/api/owned?userID=${encodeURIComponent(userId)}`
   );
   const data: OwnedBooksResponse = await response.json();
 
@@ -41,7 +41,7 @@ const fetchUserBooks = async (userId: string): Promise<Array<UserBookData>> => {
   // For now, we'll let the server use the environment variable
   // TODO: pass the token - we have to ask user for it still
   const response = await fetch(
-    `/api/books?userID=${encodeURIComponent(userId)}`,
+    `/api/books?userID=${encodeURIComponent(userId)}`
   );
   const data: UserBooksResponse = await response.json();
 
@@ -53,7 +53,7 @@ const fetchUserBooks = async (userId: string): Promise<Array<UserBookData>> => {
 };
 
 const fetchTBRBooks = async (
-  userId: string,
+  userId: string
 ): Promise<{ [bookId: number]: string[] }> => {
   if (!userId) {
     throw new Error("User ID is required");
@@ -62,7 +62,7 @@ const fetchTBRBooks = async (
   // For now, we'll let the server use the environment variable
   // TODO: pass the token - we have to ask user for it still
   const response = await fetch(
-    `/api/tbrbooks?userID=${encodeURIComponent(userId)}`,
+    `/api/tbrbooks?userID=${encodeURIComponent(userId)}`
   );
   const data: TBRBooksResponse = await response.json();
 
@@ -101,7 +101,7 @@ const fetchSeriesInfo = async (seriesIds: number[]): Promise<SeriesMap> => {
 };
 
 const fetchSeriesStatuses = async (
-  userId: string,
+  userId: string
 ): Promise<{ [seriesName: string]: number[] }> => {
   if (!userId) {
     throw new Error("User ID is required");
@@ -110,7 +110,7 @@ const fetchSeriesStatuses = async (
   // For now, we'll let the server use the environment variable
   // TODO: pass the token - we have to ask user for it still
   const response = await fetch(
-    `/api/seriesstatus?userID=${encodeURIComponent(userId)}`,
+    `/api/seriesstatus?userID=${encodeURIComponent(userId)}`
   );
   const data: SeriesStatusResponse = await response.json();
 
@@ -118,14 +118,14 @@ const fetchSeriesStatuses = async (
     return data.series_status;
   } else {
     throw new Error(
-      data.error || data.message || "Failed to load series statuses",
+      data.error || data.message || "Failed to load series statuses"
     );
   }
 };
 
 export const useHardcoverBooks = (
   userId: string,
-  onBooksLoaded?: (hardcoverData: HardcoverData) => void,
+  onBooksLoaded?: (hardcoverData: HardcoverData) => void
 ) => {
   return useQuery({
     queryKey: ["hardcoverBooks", userId],
@@ -138,6 +138,20 @@ export const useHardcoverBooks = (
       for (const book of userBooks) {
         if (Object.hasOwn(bookData, book.book.id)) {
           console.debug(`Book ${book.book.id} already exists`);
+          // Add edition info to existing book
+          const existingBook = bookData[book.book.id]!;
+          if (!existingBook.editions) {
+            existingBook.editions = [];
+          }
+          existingBook.editions.push({
+            id: book.edition.id,
+            edition_format: book.edition.edition_format,
+            edition_information: book.edition.edition_information,
+            pages: book.edition.pages,
+            physical_format: book.edition.physical_format,
+            physical_information: book.edition.physical_information,
+            audio_seconds: book.edition.audio_seconds,
+          });
           continue;
         }
 
@@ -153,11 +167,22 @@ export const useHardcoverBooks = (
             book.status_id && book.status_id >= 2
               ? [book.edition.id]
               : undefined,
+          editions: [
+            {
+              id: book.edition.id,
+              edition_format: book.edition.edition_format,
+              edition_information: book.edition.edition_information,
+              pages: book.edition.pages,
+              physical_format: book.edition.physical_format,
+              physical_information: book.edition.physical_information,
+              audio_seconds: book.edition.audio_seconds,
+            },
+          ],
         };
 
         if (book.book.book_series.some((series) => series.featured)) {
           const series = book.book.book_series.find(
-            (series) => series.featured,
+            (series) => series.featured
           )!;
           if (!seriesTempData.has(series.series_id)) {
             seriesTempData.set(series.series_id, new Map());
@@ -178,18 +203,43 @@ export const useHardcoverBooks = (
             existingBook.editionsOwned = [];
           }
           existingBook.editionsOwned.push(book.edition.id);
+
+          // Add edition info to existing book
+          if (!existingBook.editions) {
+            existingBook.editions = [];
+          }
+          existingBook.editions.push({
+            id: book.edition.id,
+            edition_format: book.edition.edition_format,
+            edition_information: book.edition.edition_information,
+            pages: book.edition.pages,
+            physical_format: book.edition.physical_format,
+            physical_information: book.edition.physical_information,
+            audio_seconds: book.edition.audio_seconds,
+          });
         } else {
           bookData[book.book.id] = {
             id: book.book.id,
             title: book.book.title,
             link: `https://hardcover.app/books/${book.book.id}`, // Using ID since slug is not available in OwnedBookData
             editionsOwned: [book.edition.id],
+            editions: [
+              {
+                id: book.edition.id,
+                edition_format: book.edition.edition_format,
+                edition_information: book.edition.edition_information,
+                pages: book.edition.pages,
+                physical_format: book.edition.physical_format,
+                physical_information: book.edition.physical_information,
+                audio_seconds: book.edition.audio_seconds,
+              },
+            ],
           };
         }
 
         if (book.book.book_series.some((series) => series.featured)) {
           const series = book.book.book_series.find(
-            (series) => series.featured,
+            (series) => series.featured
           )!;
           if (!seriesTempData.has(series.series_id)) {
             seriesTempData.set(series.series_id, new Map());
@@ -211,7 +261,7 @@ export const useHardcoverBooks = (
       }
 
       const seriesInfo = await fetchSeriesInfo(
-        Array.from(seriesTempData.keys()),
+        Array.from(seriesTempData.keys())
       );
 
       // Transfer books_read data from seriesTempData to seriesData

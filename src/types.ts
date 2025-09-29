@@ -14,6 +14,16 @@ export interface AppState {
 // 5	Did Not Finished
 // 6	Ignored
 
+export interface EditionInfo {
+  id: number;
+  edition_format: string;
+  edition_information: string;
+  pages: number | null;
+  physical_format: string | null;
+  physical_information: string | null;
+  audio_seconds: number | null;
+}
+
 export interface BookInfo {
   id: number;
   title: string;
@@ -27,6 +37,7 @@ export interface BookInfo {
   image?: string;
   rating?: number;
   hasReview?: boolean;
+  editions?: EditionInfo[];
 }
 
 export interface UserBooksMap {
