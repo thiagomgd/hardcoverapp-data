@@ -11,11 +11,12 @@ interface User {
 
 function App() {
   const [userBookData, setUserData] = useState<HardcoverData | undefined>(
-    undefined,
+    undefined
   );
   const [user, setUser] = useState<User | null>(null);
   const [userLoading, setUserLoading] = useState(true);
   const [userError, setUserError] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<"books" | "series">("books");
 
   // Fetch user information on app load
   useEffect(() => {
@@ -68,9 +69,42 @@ function App() {
         )}
       </header>
 
-      <main className="py-10 px-5 mx-auto">
-        <BookDataDisplay data={userBookData} />
-        <SeriesDataDisplay data={userBookData} />
+      <main className="py-10 px-5 mx-auto max-w-7xl">
+        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+          {/* Tab Navigation */}
+          <div className="border-b border-gray-200">
+            <nav className="flex">
+              <button
+                onClick={() => setActiveTab("books")}
+                className={`px-6 py-4 text-sm font-medium transition-colors duration-200 ${
+                  activeTab === "books"
+                    ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                📚 Books
+              </button>
+              <button
+                onClick={() => setActiveTab("series")}
+                className={`px-6 py-4 text-sm font-medium transition-colors duration-200 ${
+                  activeTab === "series"
+                    ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
+                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
+                }`}
+              >
+                📖 Series
+              </button>
+            </nav>
+          </div>
+
+          {/* Tab Content */}
+          <div className="p-6">
+            {activeTab === "books" && <BookDataDisplay data={userBookData} />}
+            {activeTab === "series" && (
+              <SeriesDataDisplay data={userBookData} />
+            )}
+          </div>
+        </div>
       </main>
     </div>
   );
