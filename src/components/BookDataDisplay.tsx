@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import type { HardcoverData } from "../types";
+import type { HardcoverData, EditionInfo } from "../types";
 import BookCard from "./BookCard";
 
 interface BookDataDisplayContentProps {
@@ -55,6 +55,12 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
             break;
           case "read-no-review":
             matchesChecks = book.statusId === 3 && !book.hasReview;
+            break;
+          case "no-page-numbers":
+            // Check if the book has no page numbers in any of its editions
+            matchesChecks =
+              !book.editions ||
+              book.editions.every((edition: EditionInfo) => !edition.pages);
             break;
           default:
             matchesChecks = true;
@@ -185,6 +191,7 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
             </option>
             <option value="read-no-rating">Read books with no rating</option>
             <option value="read-no-review">Read books with no review</option>
+            <option value="no-page-numbers">Books without page numbers</option>
           </select>
 
           <select
