@@ -63,12 +63,12 @@ function App() {
         )}
         {userError && <p className="mt-4 text-red-600">Error: {userError}</p>}
         {user && (
-          <p className="mt-4 text-gray-700">
-            Welcome, <strong>{user.username}</strong> (ID: {user.id})
-          </p>
-        )}
-        {user && (
-          <LoadBooks userId={user.id} onBooksLoaded={handleBooksLoaded} />
+          <>
+            <p className="mt-4 text-gray-700">
+              Welcome, <strong>{user.username}</strong> (ID: {user.id})
+            </p>
+            <LoadBooks userId={user.id} onBooksLoaded={handleBooksLoaded} />
+          </>
         )}
       </header>
 
@@ -112,13 +112,13 @@ function App() {
 
           {/* Tab Content */}
           <div className="p-6">
-            {activeTab === "books" && <BookDataDisplay data={userBookData} />}
-            {activeTab === "series" && (
-              <SeriesDataDisplay data={userBookData} />
-            )}
-            {activeTab === "compare" && (
-              <CompareDataDisplay currentData={userBookData} />
-            )}
+            {
+              {
+                books: <BookDataDisplay data={userBookData} />,
+                series: <SeriesDataDisplay data={userBookData} />,
+                compare: <CompareDataDisplay currentData={userBookData} />,
+              }[activeTab]
+            }
           </div>
         </div>
       </main>
