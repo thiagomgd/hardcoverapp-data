@@ -16,6 +16,7 @@ HARDCOVER_TOKEN=your_hardcover_api_token_here
 ```
 
 To get your Hardcover API token:
+
 1. Go to [hardcover.app](https://hardcover.app)
 2. Log in to your account
 3. Go to your account settings
@@ -27,11 +28,13 @@ To get your Hardcover API token:
 ### Running the Server
 
 1. Install dependencies:
+
 ```bash
 npm install
 ```
 
 2. Start the development server:
+
 ```bash
 npm run dev:server
 ```
@@ -49,20 +52,25 @@ The server will start on `http://localhost:3000`
 
 ### Checks
 
-- [X] TBR lists check (requires `TBR: ` lists)
-  - [X] read books on TBR lists
-  - [X] unread books on multiple TBR lists
+- [x] TBR lists check (requires `TBR: ` lists)
+  - [x] read books on TBR lists
+  - [x] unread books on multiple TBR lists
 - [ ] Owned books that have a different version marked as read
-- [X] Read boks with no rating or review (option to skip graphic novels/light novels)
+- [x] Read boks with no rating or review (option to skip graphic novels/light novels)
 - [ ] Books without type (Book, Novella, Light Novel)
-- [ ] Series status check (requires `Series: ` lists with 1st book in each series)
+- [x] Series status check (requires `Series: ` lists with 1st book in each series)
   - [ ] Series that are not in any list (maybe skip completed series?)
+- [ ] Books without page numbers
 
 ### Stats And Info
 
 - [ ] Series finished vs incomplete - also take into account read all main books vs all including novellas.
-- [ ] % of books read owned vs not 
+- [ ] % of books read owned vs not
   - [ ] followup - check lists like Library for more data
+
+### Check previously saved info
+
+WIP
 
 ### Other
 
