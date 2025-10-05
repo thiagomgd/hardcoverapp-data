@@ -14,6 +14,7 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [checksFilter, setChecksFilter] = useState<string>("none");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortBy, setSortBy] = useState<"title" | "author" | "rating">("title");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
   const [currentPage, setCurrentPage] = useState(1);
@@ -28,6 +29,36 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
         book.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
         (book.author &&
           book.author.toLowerCase().includes(searchTerm.toLowerCase()));
+
+      // Status filter logic
+      let matchesStatus = true;
+      if (statusFilter !== "all") {
+        switch (statusFilter) {
+          case "want-to-read":
+            matchesStatus = book.statusId === 1;
+            break;
+          case "currently-reading":
+            matchesStatus = book.statusId === 2;
+            break;
+          case "read":
+            matchesStatus = book.statusId === 3;
+            break;
+          case "paused":
+            matchesStatus = book.statusId === 4;
+            break;
+          case "did-not-finish":
+            matchesStatus = book.statusId === 5;
+            break;
+          case "ignored":
+            matchesStatus = book.statusId === 6;
+            break;
+          case "no-status":
+            matchesStatus = !book.statusId;
+            break;
+          default:
+            matchesStatus = true;
+        }
+      }
 
       // Checks filter logic - adapted for BookInfo structure
       let matchesChecks = true;
@@ -72,7 +103,7 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
         }
       }
 
-      return matchesSearch && matchesChecks;
+      return matchesSearch && matchesStatus && matchesChecks;
     })
     .sort((a, b) => {
       let aValue: string | number;
@@ -117,7 +148,7 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
   // Reset to page 1 when filters change
   React.useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm, checksFilter, sortBy, sortOrder, booksPerPage]);
+  }, [searchTerm, statusFilter, checksFilter, sortBy, sortOrder, booksPerPage]);
 
   return (
     <div className="w-full max-w-6xl mx-auto p-5">
@@ -177,6 +208,27 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
             <option value={20}>20 per page</option>
             <option value={50}>50 per page</option>
             <option value={100}>100 per page</option>
+          </select>
+
+          <select
+            value={statusFilter}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              // Reset checks filter to "none" when status filter changes to anything other than "all"
+              if (e.target.value !== "all") {
+                setChecksFilter("none");
+              }
+            }}
+            className="px-4 py-3 border-2 border-gray-200 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:border-blue-500"
+          >
+            <option value="all">All Statuses</option>
+            <option value="want-to-read">Want to Read</option>
+            <option value="currently-reading">Currently Reading</option>
+            <option value="read">Read</option>
+            <option value="paused">Paused</option>
+            <option value="did-not-finish">Did Not Finish</option>
+            <option value="ignored">Ignored</option>
+            <option value="no-status">No Status</option>
           </select>
 
           <select
