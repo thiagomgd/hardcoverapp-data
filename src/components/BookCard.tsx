@@ -86,6 +86,17 @@ const BookCard: React.FC<BookCardProps> = ({ book, index }) => {
             {formatAudioDuration(book.listeningDuration)}
           </div>
         )}
+
+        <div className="text-sm">
+          <a
+            href={`https://howlongtoread.com/results/${encodeURIComponent(book.title)}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-purple-600 hover:text-purple-800 underline"
+          >
+            📖 Check reading time on How Long to Read
+          </a>
+        </div>
       </div>
     </div>
   );
