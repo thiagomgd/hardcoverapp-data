@@ -1,5 +1,6 @@
 import React from "react";
 import type { BookInfo } from "../types";
+import { formatAudioDuration } from "../utils/formatDuration";
 
 interface BookCardProps {
   book: BookInfo;
@@ -76,6 +77,13 @@ const BookCard: React.FC<BookCardProps> = ({ book, index }) => {
         {book.editionsRead && book.editionsRead.length > 0 && (
           <div className="text-sm text-gray-600">
             <strong>Read Editions:</strong> {book.editionsRead.length}
+          </div>
+        )}
+
+        {book.listeningDuration != null && book.listeningDuration > 0 && (
+          <div className="text-sm text-gray-600">
+            <strong>🎧 Audio Duration:</strong>{" "}
+            {formatAudioDuration(book.listeningDuration)}
           </div>
         )}
       </div>

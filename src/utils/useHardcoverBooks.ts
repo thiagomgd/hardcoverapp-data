@@ -123,6 +123,18 @@ const fetchSeriesStatuses = async (
   }
 };
 
+const getAudioSeconds = (
+  audioEditions: { audio_seconds: number | null }[]
+): number => {
+  if (audioEditions.length === 0) return 0;
+  const total = audioEditions.reduce(
+    (acc, edition) => acc + (edition.audio_seconds ?? 0),
+    0
+  );
+  // Return the average audio seconds
+  return total / audioEditions.length;
+};
+
 export const useHardcoverBooks = (
   userId: string,
   onBooksLoaded?: (hardcoverData: HardcoverData) => void
@@ -178,6 +190,7 @@ export const useHardcoverBooks = (
               audio_seconds: book.edition.audio_seconds,
             },
           ],
+          listeningDuration: getAudioSeconds(book.book.editions),
         };
 
         if (book.book.book_series.some((series) => series.featured)) {

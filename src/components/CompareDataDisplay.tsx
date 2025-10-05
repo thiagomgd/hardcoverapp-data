@@ -5,6 +5,7 @@ import type {
   SeriesInfo,
   EditionInfo,
 } from "../types";
+import { formatAudioDuration } from "../utils/formatDuration";
 
 interface CompareDataDisplayProps {
   currentData?: HardcoverData;
@@ -88,7 +89,7 @@ export default function CompareDataDisplay({
     if (edition.physical_format)
       parts.push(`Physical: ${edition.physical_format}`);
     if (edition.audio_seconds)
-      parts.push(`Audio: ${Math.round(edition.audio_seconds / 60)} min`);
+      parts.push(`Audio: ${formatAudioDuration(edition.audio_seconds)}`);
     if (edition.edition_information)
       parts.push(`Info: ${edition.edition_information}`);
     return parts.join(" | ");

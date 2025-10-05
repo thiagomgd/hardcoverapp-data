@@ -62,6 +62,11 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
               !book.editions ||
               book.editions.every((edition: EditionInfo) => !edition.pages);
             break;
+          case "no-listening-duration":
+            // Check if the book has no listening duration
+            matchesChecks =
+              !book.listeningDuration || book.listeningDuration === 0;
+            break;
           default:
             matchesChecks = true;
         }
@@ -192,6 +197,9 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
             <option value="read-no-rating">Read books with no rating</option>
             <option value="read-no-review">Read books with no review</option>
             <option value="no-page-numbers">Books without page numbers</option>
+            <option value="no-listening-duration">
+              Books without listening duration
+            </option>
           </select>
 
           <select

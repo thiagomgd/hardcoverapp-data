@@ -38,6 +38,7 @@ export interface BookInfo {
   rating?: number;
   hasReview?: boolean;
   editions?: EditionInfo[];
+  listeningDuration?: number;
 }
 
 export interface UserBooksMap {
@@ -116,6 +117,9 @@ export interface UserBookData {
       featured: boolean;
       series_id: number;
       position: number;
+    }>;
+    editions: Array<{
+      audio_seconds: number | null;
     }>;
   };
 }

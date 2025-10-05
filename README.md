@@ -60,7 +60,8 @@ The server will start on `http://localhost:3000`
 - [ ] Books without type (Book, Novella, Light Novel)
 - [x] Series status check (requires `Series: ` lists with 1st book in each series)
   - [ ] Series that are not in any list (maybe skip completed series?)
-- [ ] Books without page numbers
+- [x] Books without page numbers
+- [ ] AUdiobook duration (to estimate reading duration)
 
 ### Stats And Info
 
