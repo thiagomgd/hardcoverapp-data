@@ -98,6 +98,10 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
             matchesChecks =
               !book.listeningDuration || book.listeningDuration === 0;
             break;
+          case "no-literary-type":
+            // Check if the book has no literary type
+            matchesChecks = !book.literaryTypeId;
+            break;
           default:
             matchesChecks = true;
         }
@@ -251,6 +255,9 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
             <option value="no-page-numbers">Books without page numbers</option>
             <option value="no-listening-duration">
               Books without listening duration
+            </option>
+            <option value="no-literary-type">
+              Books without literary type
             </option>
           </select>
 
