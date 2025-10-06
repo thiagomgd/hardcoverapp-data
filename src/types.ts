@@ -28,6 +28,8 @@ export interface BookInfo {
   id: number;
   title: string;
   link: string;
+  categoryId?: number;
+  literaryTypeId?: number;
   status?: string;
   statusId?: number;
   tbrLists?: string[];
@@ -63,6 +65,8 @@ export interface OwnedBookData {
   book: {
     id: number;
     title: string;
+    book_category_id?: number;
+    literary_type_id?: number;
     book_series: Array<{
       featured: boolean;
       series_id: number;
@@ -113,6 +117,8 @@ export interface UserBookData {
     id: number;
     title: string;
     slug: string;
+    book_category_id?: number;
+    literary_type_id?: number;
     book_series: Array<{
       featured: boolean;
       series_id: number;
@@ -164,3 +170,29 @@ export interface SeriesStatusResponse {
   message?: string;
   error?: string;
 }
+
+export const BOOK_CATEGORIES_MAP: { [id: number]: string } = {
+  1: "Book",
+  2: "Novella",
+  3: "Short Story",
+  4: "Graphic Novel",
+  5: "Fan Fiction",
+  6: "Research Paper",
+  7: "Poetry",
+  8: "Collection",
+  9: "Web Novel",
+  10: "Light Novel",
+};
+
+export const BOOK_CATEGORIES: { id: number; name: string }[] = Object.entries(
+  BOOK_CATEGORIES_MAP
+).map(([id, name]) => ({ id: parseInt(id), name }));
+
+export const LITERARY_TYPES_MAP: { [id: number]: string } = {
+  1: "Fiction",
+  2: "Non-Fiction",
+};
+
+export const LITERARY_TYPES: { id: number; name: string }[] = Object.entries(
+  LITERARY_TYPES_MAP
+).map(([id, name]) => ({ id: parseInt(id), name }));

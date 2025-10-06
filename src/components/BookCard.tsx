@@ -1,5 +1,6 @@
 import React from "react";
 import type { BookInfo } from "../types";
+import { BOOK_CATEGORIES_MAP, LITERARY_TYPES_MAP } from "../types";
 import { formatAudioDuration } from "../utils/formatDuration";
 
 interface BookCardProps {
@@ -42,6 +43,19 @@ const BookCard: React.FC<BookCardProps> = ({ book, index }) => {
               🔗 View on Hardcover
             </a>
           </p>
+        )}
+
+        {book.categoryId && BOOK_CATEGORIES_MAP[book.categoryId] && (
+          <div className="text-sm text-gray-600">
+            <strong>Category:</strong> {BOOK_CATEGORIES_MAP[book.categoryId]}
+          </div>
+        )}
+
+        {book.literaryTypeId && LITERARY_TYPES_MAP[book.literaryTypeId] && (
+          <div className="text-sm text-gray-600">
+            <strong>Literary Type:</strong>{" "}
+            {LITERARY_TYPES_MAP[book.literaryTypeId]}
+          </div>
         )}
 
         {book.rating && book.rating > 0 && (

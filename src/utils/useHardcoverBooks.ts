@@ -171,6 +171,8 @@ export const useHardcoverBooks = (
           id: book.book.id,
           title: book.book.title,
           link: `https://hardcover.app/books/${book.book.slug}`,
+          categoryId: book.book.book_category_id ?? undefined,
+          literaryTypeId: book.book.literary_type_id ?? undefined,
           hasReview: book.review !== null,
           rating: book.rating ?? undefined,
           status: book.book.book_status.name,
@@ -235,6 +237,8 @@ export const useHardcoverBooks = (
             id: book.book.id,
             title: book.book.title,
             link: `https://hardcover.app/books/${book.book.id}`, // Using ID since slug is not available in OwnedBookData
+            categoryId: book.book.book_category_id ?? undefined,
+            literaryTypeId: book.book.literary_type_id ?? undefined,
             editionsOwned: [book.edition.id],
             editions: [
               {

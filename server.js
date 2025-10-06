@@ -132,6 +132,8 @@ const GET_LIST_BOOKS_QUERY = gql`
       book {
         id
         title
+        literary_type_id
+        book_category_id
         book_series {
           featured
           series_id
@@ -193,6 +195,8 @@ const GET_USER_BOOKS_QUERY = gql`
         id
         title
         slug
+        literary_type_id
+        book_category_id
         book_series {
           featured
           series_id
