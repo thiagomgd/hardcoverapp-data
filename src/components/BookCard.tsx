@@ -2,6 +2,7 @@ import React from "react";
 import type { BookInfo } from "../types";
 import { BOOK_CATEGORIES_MAP, LITERARY_TYPES_MAP } from "../types";
 import { formatAudioDuration } from "../utils/formatDuration";
+import { calculateReadingTime } from "../utils/calculateReadingTime";
 
 interface BookCardProps {
   book: BookInfo;
@@ -95,10 +96,16 @@ const BookCard: React.FC<BookCardProps> = ({ book, index }) => {
         )}
 
         {book.listeningDuration != null && book.listeningDuration > 0 && (
-          <div className="text-sm text-gray-600">
-            <strong>🎧 Audio Duration:</strong>{" "}
-            {formatAudioDuration(book.listeningDuration)}
-          </div>
+          <>
+            <div className="text-sm text-gray-600">
+              <strong>🎧 Audio Duration:</strong>{" "}
+              {formatAudioDuration(book.listeningDuration)}
+            </div>
+            <div className="text-sm text-gray-600">
+              <strong>📚 Estimated reading time:</strong>{" "}
+              {calculateReadingTime(book)}
+            </div>
+          </>
         )}
 
         <div className="text-sm">

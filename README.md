@@ -57,11 +57,11 @@ The server will start on `http://localhost:3000`
   - [x] unread books on multiple TBR lists
 - [ ] Owned books that have a different version marked as read
 - [x] Read boks with no rating or review (option to skip graphic novels/light novels)
-- [ ] Books without type (Book, Novella, Light Novel)
+- [x] Books without literature type (Fiction, non-fiction)
 - [x] Series status check (requires `Series: ` lists with 1st book in each series)
   - [ ] Series that are not in any list (maybe skip completed series?)
 - [x] Books without page numbers
-- [ ] AUdiobook duration (to estimate reading duration)
+- [x] Audiobook duration (to estimate reading duration)
 
 ### Stats And Info
 
