@@ -33,12 +33,13 @@ To get your Hardcover API token:
 npm install
 ```
 
-2. Start the development server:
+2. Start the app:
 
 ```bash
-npm run dev:server
+npm run dev:full
 ```
 
+The app will be available on `http://localhost:5173/hardcoverapp-data/`
 The server will start on `http://localhost:3000`
 
 ### API Endpoints
