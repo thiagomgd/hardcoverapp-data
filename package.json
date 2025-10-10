@@ -15,15 +15,13 @@
   "dependencies": {
     "@fastify/cors": "^11.1.0",
     "@fastify/react": "^1.1.0",
-    "@tailwindcss/vite": "^4.1.13",
     "@tanstack/react-query": "^5.87.1",
     "dotenv": "^17.2.2",
     "fastify": "^5.6.0",
     "graphql": "^16.11.0",
     "graphql-request": "^7.2.0",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1",
-    "tailwindcss": "^4.1.13"
+    "react-dom": "^19.1.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.33.0",

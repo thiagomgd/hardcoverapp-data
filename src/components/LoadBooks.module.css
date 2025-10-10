@@ -1,0 +1,50 @@
+.container {
+  margin-top: var(--spacing-6);
+}
+
+.message {
+  color: var(--color-gray-600);
+  margin-bottom: var(--spacing-4);
+}
+
+.errorMessage {
+  color: var(--color-red-600);
+  margin-bottom: var(--spacing-4);
+}
+
+.successMessage {
+  color: var(--color-green-600);
+  margin-bottom: var(--spacing-4);
+}
+
+.button {
+  padding: var(--spacing-3) var(--spacing-6);
+  border-radius: var(--radius-lg);
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-colors);
+  font-size: 1rem;
+  color: var(--color-white);
+}
+
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.buttonPrimary {
+  background-color: var(--color-blue-500);
+}
+
+.buttonPrimary:hover:not(:disabled) {
+  background-color: var(--color-blue-600);
+}
+
+.buttonError {
+  background-color: var(--color-red-500);
+}
+
+.buttonError:hover:not(:disabled) {
+  background-color: var(--color-red-600);
+}

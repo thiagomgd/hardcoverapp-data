@@ -6,6 +6,7 @@ import type {
   EditionInfo,
 } from "../types";
 import { formatAudioDuration } from "../utils/formatDuration";
+import styles from "./CompareDataDisplay.module.css";
 
 interface CompareDataDisplayProps {
   currentData?: HardcoverData;
@@ -364,11 +365,11 @@ export default function CompareDataDisplay({
 
   if (!currentData) {
     return (
-      <div className="text-center py-8">
-        <p className="text-gray-600">
+      <div className={styles.emptyState}>
+        <p className={styles.emptyStateText}>
           No current data available for comparison.
         </p>
-        <p className="text-sm text-gray-500 mt-2">
+        <p className={styles.emptyStateSubtext}>
           Load your books first to enable comparison.
         </p>
       </div>
@@ -376,16 +377,14 @@ export default function CompareDataDisplay({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="bg-gray-50 rounded-lg p-4">
-        <h2 className="text-xl font-semibold text-gray-800 mb-4">
-          Data Comparison
-        </h2>
+    <div className={styles.container}>
+      <div className={styles.controlSection}>
+        <h2 className={styles.sectionTitle}>Data Comparison</h2>
 
-        <div className="flex flex-wrap gap-4 mb-4">
+        <div className={styles.buttonGroup}>
           <button
             onClick={saveCurrentData}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className={`${styles.button} ${styles.buttonPrimary}`}
           >
             💾 Save Current Data as Previous
           </button>
@@ -393,7 +392,7 @@ export default function CompareDataDisplay({
           {hasData && (
             <button
               onClick={clearSavedData}
-              className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              className={`${styles.button} ${styles.buttonDanger}`}
             >
               🗑️ Clear Saved Data
             </button>
@@ -401,8 +400,8 @@ export default function CompareDataDisplay({
         </div>
 
         {!hasData && (
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <p className="text-yellow-800">
+          <div className={styles.infoBox}>
+            <p>
               <strong>No previous data found.</strong> Save your current data to
               enable comparison with future loads.
             </p>
@@ -411,23 +410,25 @@ export default function CompareDataDisplay({
       </div>
 
       {comparison && (
-        <div className="space-y-6">
+        <div className={styles.container}>
           {/* New Books */}
           {comparison.newBooks.length > 0 && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-green-800 mb-3">
+            <div
+              className={`${styles.changeSection} ${styles.changeSectionGreen}`}
+            >
+              <h3
+                className={`${styles.changeSectionTitle} ${styles.changeSectionTitleGreen}`}
+              >
                 📚 New Books ({comparison.newBooks.length})
               </h3>
-              <div className="space-y-2">
+              <div className={styles.itemsList}>
                 {comparison.newBooks.map((book) => (
                   <div
                     key={book.id}
-                    className="bg-white rounded-lg p-3 border border-green-200"
+                    className={`${styles.itemCard} ${styles.itemCardGreen}`}
                   >
-                    <div className="font-medium text-gray-800">
-                      {book.title}
-                    </div>
-                    <div className="text-sm text-gray-600">
+                    <div className={styles.itemTitle}>{book.title}</div>
+                    <div className={styles.itemMeta}>
                       Status: {book.status || "Unknown"} | Rating:{" "}
                       {book.rating || "Not rated"}
                     </div>
@@ -439,20 +440,22 @@ export default function CompareDataDisplay({
 
           {/* Removed Books */}
           {comparison.removedBooks.length > 0 && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-red-800 mb-3">
+            <div
+              className={`${styles.changeSection} ${styles.changeSectionRed}`}
+            >
+              <h3
+                className={`${styles.changeSectionTitle} ${styles.changeSectionTitleRed}`}
+              >
                 📚 Removed Books ({comparison.removedBooks.length})
               </h3>
-              <div className="space-y-2">
+              <div className={styles.itemsList}>
                 {comparison.removedBooks.map((book) => (
                   <div
                     key={book.id}
-                    className="bg-white rounded-lg p-3 border border-red-200"
+                    className={`${styles.itemCard} ${styles.itemCardRed}`}
                   >
-                    <div className="font-medium text-gray-800">
-                      {book.title}
-                    </div>
-                    <div className="text-sm text-gray-600">
+                    <div className={styles.itemTitle}>{book.title}</div>
+                    <div className={styles.itemMeta}>
                       Status: {book.status || "Unknown"} | Rating:{" "}
                       {book.rating || "Not rated"}
                     </div>
@@ -464,32 +467,34 @@ export default function CompareDataDisplay({
 
           {/* Updated Books */}
           {comparison.updatedBooks.length > 0 && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-blue-800 mb-3">
+            <div
+              className={`${styles.changeSection} ${styles.changeSectionBlue}`}
+            >
+              <h3
+                className={`${styles.changeSectionTitle} ${styles.changeSectionTitleBlue}`}
+              >
                 📚 Updated Books ({comparison.updatedBooks.length})
               </h3>
-              <div className="space-y-4">
+              <div className={styles.itemsList}>
                 {comparison.updatedBooks.map(({ book, changes }) => (
                   <div
                     key={book.id}
-                    className="bg-white rounded-lg p-4 border border-blue-200"
+                    className={`${styles.itemCard} ${styles.itemCardBlue}`}
                   >
-                    <div className="font-medium text-gray-800 mb-3">
-                      {book.title}
-                    </div>
-                    <div className="space-y-2">
+                    <div className={styles.itemTitle}>{book.title}</div>
+                    <div className={styles.changesList}>
                       {changes.map((change, index) => (
-                        <div key={index} className="text-sm">
-                          <span className="font-medium text-gray-700">
+                        <div key={index} className={styles.changeItem}>
+                          <span className={styles.changeField}>
                             {formatFieldName(change.field)}:
                           </span>
-                          <div className="ml-4 mt-1">
-                            <div className="text-red-600">
-                              <span className="font-medium">Old:</span>{" "}
+                          <div className={styles.changeDetails}>
+                            <div className={styles.changeOldValue}>
+                              <span className={styles.changeLabel}>Old:</span>{" "}
                               {formatValue(change.oldValue)}
                             </div>
-                            <div className="text-green-600">
-                              <span className="font-medium">New:</span>{" "}
+                            <div className={styles.changeNewValue}>
+                              <span className={styles.changeLabel}>New:</span>{" "}
                               {formatValue(change.newValue)}
                             </div>
                           </div>
@@ -504,20 +509,22 @@ export default function CompareDataDisplay({
 
           {/* New Series */}
           {comparison.newSeries.length > 0 && (
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-green-800 mb-3">
+            <div
+              className={`${styles.changeSection} ${styles.changeSectionGreen}`}
+            >
+              <h3
+                className={`${styles.changeSectionTitle} ${styles.changeSectionTitleGreen}`}
+              >
                 📖 New Series ({comparison.newSeries.length})
               </h3>
-              <div className="space-y-2">
+              <div className={styles.itemsList}>
                 {comparison.newSeries.map((series) => (
                   <div
                     key={series.id}
-                    className="bg-white rounded-lg p-3 border border-green-200"
+                    className={`${styles.itemCard} ${styles.itemCardGreen}`}
                   >
-                    <div className="font-medium text-gray-800">
-                      {series.name}
-                    </div>
-                    <div className="text-sm text-gray-600">
+                    <div className={styles.itemTitle}>{series.name}</div>
+                    <div className={styles.itemMeta}>
                       Books: {series.books_count} | State: {series.state}
                     </div>
                   </div>
@@ -528,20 +535,22 @@ export default function CompareDataDisplay({
 
           {/* Removed Series */}
           {comparison.removedSeries.length > 0 && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-red-800 mb-3">
+            <div
+              className={`${styles.changeSection} ${styles.changeSectionRed}`}
+            >
+              <h3
+                className={`${styles.changeSectionTitle} ${styles.changeSectionTitleRed}`}
+              >
                 📖 Removed Series ({comparison.removedSeries.length})
               </h3>
-              <div className="space-y-2">
+              <div className={styles.itemsList}>
                 {comparison.removedSeries.map((series) => (
                   <div
                     key={series.id}
-                    className="bg-white rounded-lg p-3 border border-red-200"
+                    className={`${styles.itemCard} ${styles.itemCardRed}`}
                   >
-                    <div className="font-medium text-gray-800">
-                      {series.name}
-                    </div>
-                    <div className="text-sm text-gray-600">
+                    <div className={styles.itemTitle}>{series.name}</div>
+                    <div className={styles.itemMeta}>
                       Books: {series.books_count} | State: {series.state}
                     </div>
                   </div>
@@ -552,32 +561,34 @@ export default function CompareDataDisplay({
 
           {/* Updated Series */}
           {comparison.updatedSeries.length > 0 && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h3 className="text-lg font-semibold text-blue-800 mb-3">
+            <div
+              className={`${styles.changeSection} ${styles.changeSectionBlue}`}
+            >
+              <h3
+                className={`${styles.changeSectionTitle} ${styles.changeSectionTitleBlue}`}
+              >
                 📖 Updated Series ({comparison.updatedSeries.length})
               </h3>
-              <div className="space-y-4">
+              <div className={styles.itemsList}>
                 {comparison.updatedSeries.map(({ series, changes }) => (
                   <div
                     key={series.id}
-                    className="bg-white rounded-lg p-4 border border-blue-200"
+                    className={`${styles.itemCard} ${styles.itemCardBlue}`}
                   >
-                    <div className="font-medium text-gray-800 mb-3">
-                      {series.name}
-                    </div>
-                    <div className="space-y-2">
+                    <div className={styles.itemTitle}>{series.name}</div>
+                    <div className={styles.changesList}>
                       {changes.map((change, index) => (
-                        <div key={index} className="text-sm">
-                          <span className="font-medium text-gray-700">
+                        <div key={index} className={styles.changeItem}>
+                          <span className={styles.changeField}>
                             {formatFieldName(change.field)}:
                           </span>
-                          <div className="ml-4 mt-1">
-                            <div className="text-red-600">
-                              <span className="font-medium">Old:</span>{" "}
+                          <div className={styles.changeDetails}>
+                            <div className={styles.changeOldValue}>
+                              <span className={styles.changeLabel}>Old:</span>{" "}
                               {formatValue(change.oldValue)}
                             </div>
-                            <div className="text-green-600">
-                              <span className="font-medium">New:</span>{" "}
+                            <div className={styles.changeNewValue}>
+                              <span className={styles.changeLabel}>New:</span>{" "}
                               {formatValue(change.newValue)}
                             </div>
                           </div>
@@ -597,10 +608,8 @@ export default function CompareDataDisplay({
             comparison.newSeries.length === 0 &&
             comparison.removedSeries.length === 0 &&
             comparison.updatedSeries.length === 0 && (
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 text-center">
-                <p className="text-gray-600">
-                  No changes detected between current and previous data.
-                </p>
+              <div className={styles.noChanges}>
+                <p>No changes detected between current and previous data.</p>
               </div>
             )}
         </div>

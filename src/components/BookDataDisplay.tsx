@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import type { HardcoverData, EditionInfo } from "../types";
 import BookCard from "./BookCard";
+import styles from "./BookDataDisplay.module.css";
 
 interface BookDataDisplayContentProps {
   data: HardcoverData;
@@ -155,35 +156,35 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
   }, [searchTerm, statusFilter, checksFilter, sortBy, sortOrder, booksPerPage]);
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-5">
-      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-8 rounded-xl mb-8">
-        <h2 className="text-3xl font-bold mb-5">📚 Book Data Summary</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-          <div className="text-center">
-            <span className="block text-3xl font-bold mb-1">{totalBooks}</span>
-            <span className="text-sm opacity-90">Filtered Books</span>
+    <div className={styles.container}>
+      <div className={styles.summarySection}>
+        <h2 className={styles.summaryTitle}>📚 Book Data Summary</h2>
+        <div className={styles.statsGrid}>
+          <div className={styles.statItem}>
+            <span className={styles.statValue}>{totalBooks}</span>
+            <span className={styles.statLabel}>Filtered Books</span>
           </div>
-          <div className="text-center">
-            <span className="block text-3xl font-bold mb-1">
+          <div className={styles.statItem}>
+            <span className={styles.statValue}>
               {books.filter((b) => b.rating && b.rating > 0).length}
             </span>
-            <span className="text-sm opacity-90">Rated Books</span>
+            <span className={styles.statLabel}>Rated Books</span>
           </div>
-          <div className="text-center">
-            <span className="block text-3xl font-bold mb-1">
+          <div className={styles.statItem}>
+            <span className={styles.statValue}>
               {books.filter((b) => b.hasReview).length}
             </span>
-            <span className="text-sm opacity-90">Books with Reviews</span>
+            <span className={styles.statLabel}>Books with Reviews</span>
           </div>
-          <div className="text-center">
-            <span className="block text-3xl font-bold mb-1">
+          <div className={styles.statItem}>
+            <span className={styles.statValue}>
               {books.filter((b) => b.tbrLists && b.tbrLists.length > 0).length}
             </span>
-            <span className="text-sm opacity-90">Books in TBR Lists</span>
+            <span className={styles.statLabel}>Books in TBR Lists</span>
           </div>
         </div>
-        <div className="mt-4 text-center">
-          <span className="text-sm opacity-90">
+        <div className={styles.paginationInfo}>
+          <span className={styles.paginationInfoText}>
             Showing {startIndex + 1}-{Math.min(endIndex, totalBooks)} of{" "}
             {totalBooks} books
             {totalPages > 1 && ` (Page ${currentPage} of ${totalPages})`}
@@ -191,22 +192,20 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-4 mb-8 items-center">
-        <div className="flex-1 min-w-64">
-          <input
-            type="text"
-            placeholder="Search books by title or author..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg text-base focus:outline-none focus:border-blue-500 transition-colors"
-          />
-        </div>
+      <div className={styles.filtersContainer}>
+        <input
+          type="text"
+          placeholder="Search books by title or author..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className={styles.searchInput}
+        />
 
-        <div className="flex gap-3 items-center">
+        <div className={styles.controlsGroup}>
           <select
             value={booksPerPage}
             onChange={(e) => setBooksPerPage(Number(e.target.value))}
-            className="px-4 py-3 border-2 border-gray-200 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:border-blue-500"
+            className={styles.select}
           >
             <option value={10}>10 per page</option>
             <option value={20}>20 per page</option>
@@ -223,7 +222,7 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
                 setChecksFilter("none");
               }
             }}
-            className="px-4 py-3 border-2 border-gray-200 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:border-blue-500"
+            className={styles.select}
           >
             <option value="all">All Statuses</option>
             <option value="want-to-read">Want to Read</option>
@@ -238,7 +237,7 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
           <select
             value={checksFilter}
             onChange={(e) => setChecksFilter(e.target.value)}
-            className="px-4 py-3 border-2 border-gray-200 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:border-blue-500"
+            className={styles.select}
           >
             <option value="none">None</option>
             <option value="started-on-tbr">
@@ -266,7 +265,7 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
             onChange={(e) =>
               setSortBy(e.target.value as "title" | "author" | "rating")
             }
-            className="px-4 py-3 border-2 border-gray-200 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:border-blue-500"
+            className={styles.select}
           >
             <option value="title">Sort by Title</option>
             <option value="author">Sort by Author</option>
@@ -275,14 +274,14 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
 
           <button
             onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-            className="px-4 py-3 border-2 border-gray-200 rounded-lg bg-white cursor-pointer text-base font-bold hover:bg-gray-50 transition-all focus:outline-none focus:border-blue-500"
+            className={styles.sortButton}
           >
             {sortOrder === "asc" ? "↑" : "↓"}
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className={styles.booksGrid}>
         {currentBooks.map((book, index) => (
           <BookCard
             key={`${book.id}-${index}`}
@@ -293,23 +292,23 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
       </div>
 
       {totalBooks === 0 && (
-        <div className="text-center py-10 text-gray-500 text-lg">
+        <div className={styles.emptyState}>
           <p>No books found matching your criteria.</p>
         </div>
       )}
 
       {/* Pagination Controls */}
       {totalPages > 1 && (
-        <div className="flex justify-center items-center gap-4 mt-8">
+        <div className={styles.paginationControls}>
           <button
             onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
             disabled={currentPage === 1}
-            className="px-4 py-2 border-2 border-gray-200 rounded-lg bg-white cursor-pointer text-sm font-medium hover:bg-gray-50 transition-all focus:outline-none focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className={styles.paginationButton}
           >
             Previous
           </button>
 
-          <div className="flex gap-2">
+          <div className={styles.pageNumbers}>
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
               let pageNum;
               if (totalPages <= 5) {
@@ -326,10 +325,8 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
                 <button
                   key={pageNum}
                   onClick={() => setCurrentPage(pageNum)}
-                  className={`px-3 py-2 border-2 rounded-lg text-sm font-medium transition-all focus:outline-none focus:border-blue-500 ${
-                    currentPage === pageNum
-                      ? "border-blue-500 bg-blue-50 text-blue-700"
-                      : "border-gray-200 bg-white hover:bg-gray-50"
+                  className={`${styles.pageButton} ${
+                    currentPage === pageNum ? styles.pageButtonActive : ""
                   }`}
                 >
                   {pageNum}
@@ -343,7 +340,7 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
               setCurrentPage(Math.min(totalPages, currentPage + 1))
             }
             disabled={currentPage === totalPages}
-            className="px-4 py-2 border-2 border-gray-200 rounded-lg bg-white cursor-pointer text-sm font-medium hover:bg-gray-50 transition-all focus:outline-none focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            className={styles.paginationButton}
           >
             Next
           </button>
@@ -355,9 +352,9 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
 
 const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
   return (
-    <div className="bg-white rounded-xl shadow-xl overflow-hidden">
-      <div className="flex justify-between items-center p-8 bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
-        <h2 className="text-2xl font-semibold">Your Book Collection</h2>
+    <div className={styles.wrapper}>
+      <div className={styles.header}>
+        <h2 className={styles.headerTitle}>Your Book Collection</h2>
       </div>
       {data && <BookDataDisplayContent data={data} />}
     </div>

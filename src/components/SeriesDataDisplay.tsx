@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import type { HardcoverData, SeriesInfo } from "../types";
+import styles from "./SeriesDataDisplay.module.css";
 
 interface SeriesDataDisplayContentProps {
   data: HardcoverData;
@@ -39,7 +40,7 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
       }
       return count;
     },
-    [data.seriesStatus],
+    [data.seriesStatus]
   );
 
   // Calculate status count statistics for UI
@@ -135,64 +136,54 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
   // Calculate series statistics
   const totalBooksInSeries = seriesObj.reduce(
     (sum, s) => sum + (s.books_count || 0),
-    0,
+    0
   );
   const totalMainBooksInSeries = seriesObj.reduce(
     (sum, s) => sum + (s.primary_books_count || 0),
-    0,
+    0
   );
   const seriesWithMainBooks = seriesObj.filter(
-    (s) => (s.primary_books_count || 0) > 0,
+    (s) => (s.primary_books_count || 0) > 0
   ).length;
 
   return (
-    <div className="w-full max-w-6xl mx-auto p-5">
-      <div className="bg-gradient-to-r from-indigo-500 to-purple-600 text-white p-8 rounded-xl mb-8">
-        <h2 className="text-3xl font-bold mb-5">📚 Series Data Summary</h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-5">
-          <div className="text-center">
-            <span className="block text-3xl font-bold mb-1">
-              {seriesObj.length}
-            </span>
-            <span className="text-sm opacity-90">Total Series</span>
+    <div className={styles.container}>
+      <div className={styles.summarySection}>
+        <h2 className={styles.summaryTitle}>📚 Series Data Summary</h2>
+        <div className={styles.statsGrid}>
+          <div className={styles.statItem}>
+            <span className={styles.statValue}>{seriesObj.length}</span>
+            <span className={styles.statLabel}>Total Series</span>
           </div>
-          <div className="text-center">
-            <span className="block text-3xl font-bold mb-1">
-              {totalBooksInSeries}
-            </span>
-            <span className="text-sm opacity-90">Total Books in Series</span>
+          <div className={styles.statItem}>
+            <span className={styles.statValue}>{totalBooksInSeries}</span>
+            <span className={styles.statLabel}>Total Books in Series</span>
           </div>
-          <div className="text-center">
-            <span className="block text-3xl font-bold mb-1">
-              {totalMainBooksInSeries}
-            </span>
-            <span className="text-sm opacity-90">Total Main Books</span>
+          <div className={styles.statItem}>
+            <span className={styles.statValue}>{totalMainBooksInSeries}</span>
+            <span className={styles.statLabel}>Total Main Books</span>
           </div>
-          <div className="text-center">
-            <span className="block text-3xl font-bold mb-1">
-              {seriesWithMainBooks}
-            </span>
-            <span className="text-sm opacity-90">Series with Books</span>
+          <div className={styles.statItem}>
+            <span className={styles.statValue}>{seriesWithMainBooks}</span>
+            <span className={styles.statLabel}>Series with Books</span>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-wrap gap-4 mb-8 items-center">
-        <div className="flex-1 min-w-64">
-          <input
-            type="text"
-            placeholder="Search series by title..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-3 border-2 border-gray-200 rounded-lg text-base focus:outline-none focus:border-blue-500 transition-colors"
-          />
-        </div>
+      <div className={styles.filtersContainer}>
+        <input
+          type="text"
+          placeholder="Search series by title..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className={styles.searchInput}
+        />
 
-        <div className="flex gap-3 items-center">
+        <div className={styles.controlsGroup}>
           <select
             value={seriesStatusFilter}
             onChange={(e) => setSeriesStatusFilter(e.target.value)}
-            className="px-4 py-3 border-2 border-gray-200 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:border-blue-500"
+            className={styles.select}
           >
             <option value="">All Statuses</option>
             {data.seriesStatus &&
@@ -206,7 +197,7 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
           <select
             value={statusCountFilter}
             onChange={(e) => setStatusCountFilter(e.target.value)}
-            className="px-4 py-3 border-2 border-gray-200 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:border-blue-500"
+            className={styles.select}
           >
             <option value="">All Status Counts</option>
             <option value="none">No Status ({statusCountStats.none})</option>
@@ -222,13 +213,10 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
             value={sortBy}
             onChange={(e) =>
               setSortBy(
-                e.target.value as
-                  | "name"
-                  | "books_count"
-                  | "primary_books_count",
+                e.target.value as "name" | "books_count" | "primary_books_count"
               )
             }
-            className="px-4 py-3 border-2 border-gray-200 rounded-lg text-sm bg-white cursor-pointer focus:outline-none focus:border-blue-500"
+            className={styles.select}
           >
             <option value="name">Sort by Title</option>
             <option value="books_count">Sort by Total Books</option>
@@ -237,7 +225,7 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
 
           <button
             onClick={() => setSortOrder(sortOrder === "asc" ? "desc" : "asc")}
-            className="px-4 py-3 border-2 border-gray-200 rounded-lg bg-white cursor-pointer text-base font-bold hover:bg-gray-50 transition-all focus:outline-none focus:border-blue-500"
+            className={styles.sortButton}
           >
             {sortOrder === "asc" ? "↑" : "↓"}
           </button>
@@ -246,8 +234,8 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
 
       {/* Pagination Info */}
       {filteredAndSortedSeries.length > 0 && (
-        <div className="mb-6 text-center text-gray-600">
-          <p className="text-lg">
+        <div className={styles.paginationInfo}>
+          <p className={styles.paginationInfoText}>
             Showing {startIndex + 1}-
             {Math.min(endIndex, filteredAndSortedSeries.length)} of{" "}
             {filteredAndSortedSeries.length} series
@@ -256,40 +244,39 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
         </div>
       )}
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <div className={styles.seriesGrid}>
         {paginatedSeries.map((seriesItem, index) => (
-          <div
-            key={`${seriesItem.id}-${index}`}
-            className="bg-white rounded-lg shadow-md border border-gray-200 p-6 hover:shadow-lg transition-shadow"
-          >
-            <div className="mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2 line-clamp-2">
+          <div key={`${seriesItem.id}-${index}`} className={styles.seriesCard}>
+            <div className={styles.seriesHeader}>
+              <h3 className={styles.seriesTitle}>
                 {seriesItem.name || `Series #${seriesItem.id}`}
               </h3>
-              <div className="text-sm text-gray-600 space-y-1">
-                <div className="flex justify-between">
-                  <span>Series ID:</span>
-                  <span className="font-medium">{seriesItem.id}</span>
+              <div className={styles.seriesMetadata}>
+                <div className={styles.metadataRow}>
+                  <span className={styles.metadataLabel}>Series ID:</span>
+                  <span className={styles.metadataValue}>{seriesItem.id}</span>
                 </div>
                 {seriesItem.books_count !== undefined && (
-                  <div className="flex justify-between">
-                    <span>Total Books:</span>
-                    <span className="font-medium">
+                  <div className={styles.metadataRow}>
+                    <span className={styles.metadataLabel}>Total Books:</span>
+                    <span className={styles.metadataValue}>
                       {seriesItem.books_count}
                     </span>
                   </div>
                 )}
                 {seriesItem.primary_books_count !== undefined && (
-                  <div className="flex justify-between">
-                    <span>Main Books:</span>
-                    <span className="font-medium">
+                  <div className={styles.metadataRow}>
+                    <span className={styles.metadataLabel}>Main Books:</span>
+                    <span className={styles.metadataValue}>
                       {seriesItem.primary_books_count}
                     </span>
                   </div>
                 )}
-                <div className="flex justify-between">
-                  <span>Books in Collection:</span>
-                  <span className="font-medium">
+                <div className={styles.metadataRow}>
+                  <span className={styles.metadataLabel}>
+                    Books in Collection:
+                  </span>
+                  <span className={styles.metadataValue}>
                     {seriesItem.books_read ? seriesItem.books_read.size : 0}
                   </span>
                 </div>
@@ -298,28 +285,29 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
 
             {/* Books in this series */}
             {seriesItem.books_read && seriesItem.books_read.size > 0 && (
-              <div className="mt-4 pt-4 border-t border-gray-100">
-                <h4 className="text-sm font-medium text-gray-700 mb-2">
+              <div className={styles.booksSection}>
+                <h4 className={styles.booksSectionTitle}>
                   Books in Collection:
                 </h4>
-                <div className="text-xs text-gray-600 space-y-1 max-h-32 overflow-y-auto">
+                <div className={styles.booksList}>
                   {Array.from(seriesItem.books_read)
                     .sort((a, b) => a[1] - b[1])
                     .slice(0, 10)
                     .map(([bookId, position]) => {
                       const book = data.books[bookId];
                       return (
-                        <div
-                          key={bookId}
-                          className="flex justify-between items-center"
-                        >
-                          <span>{book?.title || `Book #${bookId}`}</span>
-                          <span className="text-gray-500">#{position}</span>
+                        <div key={bookId} className={styles.bookItem}>
+                          <span className={styles.bookTitle}>
+                            {book?.title || `Book #${bookId}`}
+                          </span>
+                          <span className={styles.bookPosition}>
+                            #{position}
+                          </span>
                         </div>
                       );
                     })}
                   {seriesItem.books_read.size > 10 && (
-                    <div className="text-gray-500 italic">
+                    <div className={styles.moreBooks}>
                       ... and {seriesItem.books_read.size - 10} more
                     </div>
                   )}
@@ -331,24 +319,24 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
       </div>
 
       {filteredAndSortedSeries.length === 0 && (
-        <div className="text-center py-10 text-gray-500 text-lg">
+        <div className={styles.emptyState}>
           <p>No series found matching your criteria.</p>
         </div>
       )}
 
       {/* Pagination Controls */}
       {totalPages > 1 && (
-        <div className="mt-8 flex justify-center items-center gap-2">
+        <div className={styles.paginationControls}>
           <button
             onClick={goToPreviousPage}
             disabled={currentPage === 1}
-            className="px-4 py-2 border-2 border-gray-200 rounded-lg bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all focus:outline-none focus:border-blue-500"
+            className={styles.paginationButton}
           >
             Previous
           </button>
 
           {/* Page Numbers */}
-          <div className="flex gap-1">
+          <div className={styles.pageNumbers}>
             {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
               let pageNum;
               if (totalPages <= 5) {
@@ -365,10 +353,8 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
                 <button
                   key={pageNum}
                   onClick={() => goToPage(pageNum)}
-                  className={`px-3 py-2 border-2 rounded-lg text-sm font-medium transition-all focus:outline-none focus:border-blue-500 ${
-                    currentPage === pageNum
-                      ? "border-blue-500 bg-blue-500 text-white"
-                      : "border-gray-200 bg-white text-gray-700 hover:bg-gray-50"
+                  className={`${styles.pageButton} ${
+                    currentPage === pageNum ? styles.pageButtonActive : ""
                   }`}
                 >
                   {pageNum}
@@ -380,7 +366,7 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
           <button
             onClick={goToNextPage}
             disabled={currentPage === totalPages}
-            className="px-4 py-2 border-2 border-gray-200 rounded-lg bg-white text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all focus:outline-none focus:border-blue-500"
+            className={styles.paginationButton}
           >
             Next
           </button>
@@ -392,9 +378,9 @@ const SeriesDataDisplayContent: React.FC<SeriesDataDisplayContentProps> = ({
 
 const SeriesDataDisplay: React.FC<SeriesDataDisplayProps> = ({ data }) => {
   return (
-    <div className="bg-white rounded-xl shadow-xl overflow-hidden">
-      <div className="flex justify-between items-center p-8 bg-gradient-to-r from-indigo-500 to-purple-600 text-white">
-        <h2 className="text-2xl font-semibold">Your Series Collection</h2>
+    <div className={styles.wrapper}>
+      <div className={styles.header}>
+        <h2 className={styles.headerTitle}>Your Series Collection</h2>
       </div>
       {data && <SeriesDataDisplayContent data={data} />}
     </div>

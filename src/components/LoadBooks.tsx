@@ -1,5 +1,6 @@
 import type { HardcoverData } from "../types";
 import { useHardcoverBooks } from "../utils/useHardcoverBooks";
+import styles from "./LoadBooks.module.css";
 
 interface LoadBooksProps {
   userId: string;
@@ -9,7 +10,7 @@ interface LoadBooksProps {
 const LoadBooks: React.FC<LoadBooksProps> = ({ userId, onBooksLoaded }) => {
   const { isLoading, error, refetch, data } = useHardcoverBooks(
     userId,
-    onBooksLoaded,
+    onBooksLoaded
   );
 
   const handleLoadBooks = () => {
@@ -26,18 +27,19 @@ const LoadBooks: React.FC<LoadBooksProps> = ({ userId, onBooksLoaded }) => {
 
   // Determine button styling based on state
   const getButtonClass = () => {
+    const baseClass = styles.button;
     if (error) {
-      return "bg-red-500 hover:bg-red-600 text-white px-6 py-3 rounded-lg font-medium transition-colors";
+      return `${baseClass} ${styles.buttonError}`;
     }
-    return "bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-lg font-medium transition-colors";
+    return `${baseClass} ${styles.buttonPrimary}`;
   };
 
   return (
-    <div className="mt-6">
-      {isLoading && <p className="text-gray-600 mb-4">Loading your books...</p>}
-      {error && <p className="text-red-600 mb-4">Error: {error.message}</p>}
+    <div className={styles.container}>
+      {isLoading && <p className={styles.message}>Loading your books...</p>}
+      {error && <p className={styles.errorMessage}>Error: {error.message}</p>}
       {data && (
-        <p className="text-green-600 mb-4">Books loaded successfully!</p>
+        <p className={styles.successMessage}>Books loaded successfully!</p>
       )}
       <button
         onClick={handleLoadBooks}

@@ -1,0 +1,194 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-6);
+}
+
+.controlSection {
+  background-color: var(--color-gray-50);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-4);
+}
+
+.sectionTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--color-gray-800);
+  margin-bottom: var(--spacing-4);
+}
+
+.buttonGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-4);
+}
+
+.button {
+  padding: var(--spacing-2) var(--spacing-4);
+  border-radius: var(--radius-lg);
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-colors);
+  font-size: 1rem;
+  color: var(--color-white);
+}
+
+.buttonPrimary {
+  background-color: var(--color-blue-600);
+}
+
+.buttonPrimary:hover {
+  background-color: var(--color-blue-700);
+}
+
+.buttonDanger {
+  background-color: var(--color-red-600);
+}
+
+.buttonDanger:hover {
+  background-color: var(--color-red-700);
+}
+
+.infoBox {
+  background-color: var(--color-yellow-50);
+  border: 1px solid var(--color-yellow-200);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-4);
+  color: var(--color-yellow-800);
+}
+
+.infoBox strong {
+  font-weight: 600;
+}
+
+.emptyState {
+  text-align: center;
+  padding: var(--spacing-8);
+}
+
+.emptyStateText {
+  color: var(--color-gray-600);
+  margin-bottom: var(--spacing-2);
+}
+
+.emptyStateSubtext {
+  font-size: 0.875rem;
+  color: var(--color-gray-500);
+  margin-top: var(--spacing-2);
+}
+
+.changeSection {
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-4);
+  border: 1px solid;
+}
+
+.changeSectionGreen {
+  background-color: var(--color-green-50);
+  border-color: var(--color-green-200);
+}
+
+.changeSectionRed {
+  background-color: var(--color-red-50);
+  border-color: var(--color-red-200);
+}
+
+.changeSectionBlue {
+  background-color: var(--color-blue-50);
+  border-color: var(--color-blue-200);
+}
+
+.changeSectionTitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin-bottom: var(--spacing-3);
+}
+
+.changeSectionTitleGreen {
+  color: var(--color-green-800);
+}
+
+.changeSectionTitleRed {
+  color: var(--color-red-800);
+}
+
+.changeSectionTitleBlue {
+  color: var(--color-blue-800);
+}
+
+.itemsList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.itemCard {
+  background-color: var(--color-white);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-3);
+  border: 1px solid;
+}
+
+.itemCardGreen {
+  border-color: var(--color-green-200);
+}
+
+.itemCardRed {
+  border-color: var(--color-red-200);
+}
+
+.itemCardBlue {
+  border-color: var(--color-blue-200);
+}
+
+.itemTitle {
+  font-weight: 500;
+  color: var(--color-gray-800);
+}
+
+.itemMeta {
+  font-size: 0.875rem;
+  color: var(--color-gray-600);
+}
+
+.changesList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.changeItem {
+  font-size: 0.875rem;
+}
+
+.changeField {
+  font-weight: 500;
+  color: var(--color-gray-700);
+}
+
+.changeDetails {
+  margin-left: var(--spacing-4);
+  margin-top: var(--spacing-1);
+}
+
+.changeOldValue {
+  color: var(--color-red-600);
+}
+
+.changeNewValue {
+  color: var(--color-green-600);
+}
+
+.changeLabel {
+  font-weight: 500;
+}
+
+.noChanges {
+  background-color: var(--color-gray-50);
+  border: 1px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-4);
+  text-align: center;
+  color: var(--color-gray-600);
+}

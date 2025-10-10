@@ -1,0 +1,240 @@
+.wrapper {
+  background-color: var(--color-white);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-8);
+  background: linear-gradient(
+    to right,
+    var(--color-indigo-500),
+    var(--color-purple-600)
+  );
+  color: var(--color-white);
+}
+
+.headerTitle {
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.container {
+  width: 100%;
+  max-width: 72rem;
+  margin: 0 auto;
+  padding: var(--spacing-5);
+}
+
+.summarySection {
+  background: linear-gradient(
+    to right,
+    var(--color-indigo-500),
+    var(--color-purple-600)
+  );
+  color: var(--color-white);
+  padding: var(--spacing-8);
+  border-radius: var(--radius-xl);
+  margin-bottom: var(--spacing-8);
+}
+
+.summaryTitle {
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-5);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-5);
+}
+
+@media (min-width: 768px) {
+  .statsGrid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.statItem {
+  text-align: center;
+}
+
+.statValue {
+  display: block;
+  font-size: 1.875rem;
+  font-weight: 700;
+  margin-bottom: var(--spacing-1);
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+.paginationInfo {
+  margin-top: var(--spacing-4);
+  text-align: center;
+}
+
+.paginationInfoText {
+  font-size: 0.875rem;
+  opacity: 0.9;
+}
+
+.filtersContainer {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-4);
+  margin-bottom: var(--spacing-8);
+  align-items: center;
+}
+
+.searchInput {
+  flex: 1;
+  min-width: 16rem;
+  padding: var(--spacing-3) var(--spacing-4);
+  border: 2px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  font-size: 1rem;
+  transition: var(--transition-colors);
+}
+
+.searchInput:focus {
+  outline: none;
+  border-color: var(--color-blue-500);
+}
+
+.controlsGroup {
+  display: flex;
+  gap: var(--spacing-3);
+  align-items: center;
+}
+
+.select {
+  padding: var(--spacing-3) var(--spacing-4);
+  border: 2px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  font-size: 0.875rem;
+  background-color: var(--color-white);
+  cursor: pointer;
+  transition: var(--transition-colors);
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--color-blue-500);
+}
+
+.sortButton {
+  padding: var(--spacing-3) var(--spacing-4);
+  border: 2px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-white);
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 700;
+  transition: var(--transition-base);
+}
+
+.sortButton:hover {
+  background-color: var(--color-gray-50);
+}
+
+.sortButton:focus {
+  outline: none;
+  border-color: var(--color-blue-500);
+}
+
+.booksGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing-5);
+}
+
+@media (min-width: 768px) {
+  .booksGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .booksGrid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.emptyState {
+  text-align: center;
+  padding: var(--spacing-10) 0;
+  color: var(--color-gray-500);
+  font-size: 1.125rem;
+}
+
+.paginationControls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--spacing-4);
+  margin-top: var(--spacing-8);
+}
+
+.paginationButton {
+  padding: var(--spacing-2) var(--spacing-4);
+  border: 2px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-white);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: var(--transition-base);
+}
+
+.paginationButton:hover:not(:disabled) {
+  background-color: var(--color-gray-50);
+}
+
+.paginationButton:focus {
+  outline: none;
+  border-color: var(--color-blue-500);
+}
+
+.paginationButton:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.pageNumbers {
+  display: flex;
+  gap: var(--spacing-2);
+}
+
+.pageButton {
+  padding: var(--spacing-2) var(--spacing-3);
+  border: 2px solid var(--color-gray-200);
+  border-radius: var(--radius-lg);
+  background-color: var(--color-white);
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: var(--transition-base);
+}
+
+.pageButton:hover {
+  background-color: var(--color-gray-50);
+}
+
+.pageButton:focus {
+  outline: none;
+  border-color: var(--color-blue-500);
+}
+
+.pageButtonActive {
+  border-color: var(--color-blue-500);
+  background-color: var(--color-blue-50);
+  color: var(--color-blue-700);
+}

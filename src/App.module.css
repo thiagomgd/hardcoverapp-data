@@ -1,0 +1,86 @@
+.appContainer {
+  min-height: 100vh;
+  background: linear-gradient(
+    to bottom right,
+    var(--color-slate-50),
+    var(--color-slate-200)
+  );
+}
+
+.header {
+  text-align: center;
+  padding: var(--spacing-10) var(--spacing-5);
+  background-color: var(--color-white);
+  box-shadow: var(--shadow-lg);
+}
+
+.title {
+  font-size: 2.25rem;
+  font-weight: 700;
+  color: var(--color-gray-800);
+  margin-bottom: var(--spacing-2);
+}
+
+.message {
+  margin-top: var(--spacing-4);
+  color: var(--color-gray-600);
+}
+
+.errorMessage {
+  margin-top: var(--spacing-4);
+  color: var(--color-red-600);
+}
+
+.welcomeMessage {
+  margin-top: var(--spacing-4);
+  color: var(--color-gray-700);
+}
+
+.welcomeMessage strong {
+  font-weight: 600;
+}
+
+.main {
+  padding: var(--spacing-10) var(--spacing-5);
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
+.contentContainer {
+  background-color: var(--color-white);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.tabNav {
+  border-bottom: 1px solid var(--color-gray-200);
+  display: flex;
+}
+
+.tabButton {
+  padding: var(--spacing-4) var(--spacing-6);
+  font-size: 0.875rem;
+  font-weight: 500;
+  border: none;
+  background: none;
+  cursor: pointer;
+  transition: var(--transition-colors);
+  color: var(--color-gray-500);
+  border-bottom: 2px solid transparent;
+}
+
+.tabButton:hover {
+  color: var(--color-gray-700);
+  background-color: var(--color-gray-50);
+}
+
+.tabButtonActive {
+  color: var(--color-blue-600);
+  border-bottom-color: var(--color-blue-600);
+  background-color: var(--color-blue-50);
+}
+
+.tabContent {
+  padding: var(--spacing-6);
+}

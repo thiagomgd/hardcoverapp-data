@@ -4,6 +4,7 @@ import type { HardcoverData } from "./types";
 import BookDataDisplay from "./components/BookDataDisplay";
 import SeriesDataDisplay from "./components/SeriesDataDisplay";
 import CompareDataDisplay from "./components/CompareDataDisplay";
+import styles from "./App.module.css";
 
 interface User {
   username: string;
@@ -53,18 +54,16 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 to-slate-200">
-      <header className="text-center py-10 px-5 bg-white shadow-lg">
-        <h1 className="text-4xl font-bold text-gray-800 mb-2">
-          📚 Hardcover Data Viewer
-        </h1>
+    <div className={styles.appContainer}>
+      <header className={styles.header}>
+        <h1 className={styles.title}>📚 Hardcover Data Viewer</h1>
         {userLoading && (
-          <p className="mt-4 text-gray-600">Loading user information...</p>
+          <p className={styles.message}>Loading user information...</p>
         )}
-        {userError && <p className="mt-4 text-red-600">Error: {userError}</p>}
+        {userError && <p className={styles.errorMessage}>Error: {userError}</p>}
         {user && (
           <>
-            <p className="mt-4 text-gray-700">
+            <p className={styles.welcomeMessage}>
               Welcome, <strong>{user.username}</strong> (ID: {user.id})
             </p>
             <LoadBooks userId={user.id} onBooksLoaded={handleBooksLoaded} />
@@ -72,46 +71,38 @@ function App() {
         )}
       </header>
 
-      <main className="py-10 px-5 mx-auto max-w-7xl">
-        <div className="bg-white rounded-lg shadow-lg overflow-hidden">
+      <main className={styles.main}>
+        <div className={styles.contentContainer}>
           {/* Tab Navigation */}
-          <div className="border-b border-gray-200">
-            <nav className="flex">
-              <button
-                onClick={() => setActiveTab("books")}
-                className={`px-6 py-4 text-sm font-medium transition-colors duration-200 ${
-                  activeTab === "books"
-                    ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                📚 Books
-              </button>
-              <button
-                onClick={() => setActiveTab("series")}
-                className={`px-6 py-4 text-sm font-medium transition-colors duration-200 ${
-                  activeTab === "series"
-                    ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                📖 Series
-              </button>
-              <button
-                onClick={() => setActiveTab("compare")}
-                className={`px-6 py-4 text-sm font-medium transition-colors duration-200 ${
-                  activeTab === "compare"
-                    ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
-                    : "text-gray-500 hover:text-gray-700 hover:bg-gray-50"
-                }`}
-              >
-                🔄 Compare With Previous Data
-              </button>
-            </nav>
+          <div className={styles.tabNav}>
+            <button
+              onClick={() => setActiveTab("books")}
+              className={`${styles.tabButton} ${
+                activeTab === "books" ? styles.tabButtonActive : ""
+              }`}
+            >
+              📚 Books
+            </button>
+            <button
+              onClick={() => setActiveTab("series")}
+              className={`${styles.tabButton} ${
+                activeTab === "series" ? styles.tabButtonActive : ""
+              }`}
+            >
+              📖 Series
+            </button>
+            <button
+              onClick={() => setActiveTab("compare")}
+              className={`${styles.tabButton} ${
+                activeTab === "compare" ? styles.tabButtonActive : ""
+              }`}
+            >
+              🔄 Compare With Previous Data
+            </button>
           </div>
 
           {/* Tab Content */}
-          <div className="p-6">
+          <div className={styles.tabContent}>
             {
               {
                 books: <BookDataDisplay data={userBookData} />,
