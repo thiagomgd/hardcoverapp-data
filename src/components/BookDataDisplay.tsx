@@ -103,6 +103,22 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
             // Check if the book has no literary type
             matchesChecks = !book.literaryTypeId;
             break;
+          case "wrong-position-data":
+            // Check if seriesDetails has any string with characters other than numbers, hyphens, and periods
+            // Also check for empty/whitespace-only strings or strings that don't match the valid pattern
+            matchesChecks =
+              book.seriesDetails &&
+              book.seriesDetails.length > 0 &&
+              book.seriesDetails.some((detail: string) => {
+                // Check if detail is null or undefined
+                if (!detail) return true;
+                // Trim whitespace and check if empty
+                const trimmed = detail.trim();
+                if (trimmed === "") return true;
+                // Check if contains any character other than 0-9, -, or .
+                return /[^0-9.-]/.test(trimmed);
+              });
+            break;
           default:
             matchesChecks = true;
         }
@@ -257,6 +273,9 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
             </option>
             <option value="no-literary-type">
               Books without literary type
+            </option>
+            <option value="wrong-position-data">
+              Books with wrong position data
             </option>
           </select>
 

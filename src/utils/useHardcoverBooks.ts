@@ -193,6 +193,15 @@ export const useHardcoverBooks = (
             },
           ],
           listeningDuration: getAudioSeconds(book.book.editions),
+          seriesDetails:
+            book.book.book_series.length > 0
+              ? book.book.book_series
+                  .map((s) => s.details)
+                  .filter(
+                    (d): d is string =>
+                      d !== null && d !== "" && d !== undefined
+                  )
+              : null,
         };
 
         if (book.book.book_series.some((series) => series.featured)) {
@@ -236,7 +245,7 @@ export const useHardcoverBooks = (
           bookData[book.book.id] = {
             id: book.book.id,
             title: book.book.title,
-            link: `https://hardcover.app/books/${book.book.id}`, // Using ID since slug is not available in OwnedBookData
+            link: `https://hardcover.app/books/${book.book.slug}`,
             categoryId: book.book.book_category_id ?? undefined,
             literaryTypeId: book.book.literary_type_id ?? undefined,
             editionsOwned: [book.edition.id],
@@ -251,6 +260,12 @@ export const useHardcoverBooks = (
                 audio_seconds: book.edition.audio_seconds,
               },
             ],
+            seriesDetails:
+              book.book.book_series.length > 0
+                ? book.book.book_series
+                    .map((s) => s.details)
+                    .filter((d): d is string => !!d)
+                : null,
           };
         }
 
