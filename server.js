@@ -117,7 +117,7 @@ const HARDCOVER_API_URL = "https://api.hardcover.app/v1/graphql";
 
 // GraphQL query to get the "Owned" list with pagination for a specific user
 const GET_LIST_BOOKS_QUERY = gql`
-  query GetOwnedBooks(
+  query GetListBooks(
     $userID: Int!
     $offset: Int!
     $limit: Int!
@@ -132,9 +132,11 @@ const GET_LIST_BOOKS_QUERY = gql`
       book {
         id
         title
+        slug
         literary_type_id
         book_category_id
         book_series {
+          details
           featured
           series_id
           position
@@ -198,6 +200,7 @@ const GET_USER_BOOKS_QUERY = gql`
         literary_type_id
         book_category_id
         book_series {
+          details
           featured
           series_id
           position

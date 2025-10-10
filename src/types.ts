@@ -41,6 +41,7 @@ export interface BookInfo {
   hasReview?: boolean;
   editions?: EditionInfo[];
   listeningDuration?: number;
+  seriesDetails?: string[] | null; // position in the series as text. Used for checking if data is correct.
 }
 
 export interface UserBooksMap {
@@ -65,9 +66,11 @@ export interface OwnedBookData {
   book: {
     id: number;
     title: string;
+    slug: string;
     book_category_id?: number;
     literary_type_id?: number;
     book_series: Array<{
+      details: string | null;
       featured: boolean;
       series_id: number;
       position: number;
@@ -120,6 +123,7 @@ export interface UserBookData {
     book_category_id?: number;
     literary_type_id?: number;
     book_series: Array<{
+      details: string | null;
       featured: boolean;
       series_id: number;
       position: number;
