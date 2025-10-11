@@ -266,6 +266,7 @@ export const useHardcoverBooks = (
                     .map((s) => s.details)
                     .filter((d): d is string => !!d)
                 : null,
+            listeningDuration: getAudioSeconds(book.book.editions),
           };
         }
 

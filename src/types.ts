@@ -75,6 +75,9 @@ export interface OwnedBookData {
       series_id: number;
       position: number;
     }>;
+    editions: Array<{
+      audio_seconds: number | null;
+    }>;
   };
   edition: {
     audio_seconds: number | null;
