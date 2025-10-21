@@ -5,6 +5,7 @@ import BookDataDisplay from "./components/BookDataDisplay";
 import SeriesDataDisplay from "./components/SeriesDataDisplay";
 import CompareDataDisplay from "./components/CompareDataDisplay";
 import styles from "./App.module.css";
+import { READING_WPM } from "./constants";
 
 interface User {
   username: string;
@@ -21,6 +22,7 @@ function App() {
   const [activeTab, setActiveTab] = useState<"books" | "series" | "compare">(
     "books"
   );
+  const [readingSpeed, setReadingSpeed] = useState(READING_WPM);
 
   // Fetch user information on app load
   useEffect(() => {
@@ -69,6 +71,26 @@ function App() {
             <LoadBooks userId={user.id} onBooksLoaded={handleBooksLoaded} />
           </>
         )}
+        <div className={styles.readingSpeedControl}>
+          <label htmlFor="readingSpeed">Reading Speed (wpm):</label>
+          <input
+            id="readingSpeed"
+            type="number"
+            value={readingSpeed}
+            onChange={(e) => {
+              const value = parseInt(e.target.value, 10);
+              if (!isNaN(value) && value > 0 && value <= 500) {
+                setReadingSpeed(value);
+              } else if (e.target.value === "") {
+                setReadingSpeed(0);
+              }
+            }}
+            min="1"
+            max="500"
+            step="1"
+            className={styles.readingSpeedInput}
+          />
+        </div>
       </header>
 
       <main className={styles.main}>
@@ -105,7 +127,12 @@ function App() {
           <div className={styles.tabContent}>
             {
               {
-                books: <BookDataDisplay data={userBookData} />,
+                books: (
+                  <BookDataDisplay
+                    data={userBookData}
+                    readingSpeed={readingSpeed}
+                  />
+                ),
                 series: <SeriesDataDisplay data={userBookData} />,
                 compare: <CompareDataDisplay currentData={userBookData} />,
               }[activeTab]

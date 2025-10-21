@@ -1,12 +1,14 @@
 import type { BookInfo } from "../types";
 import { AUDIOBOOK_AVG_WPM, READING_WPM } from "../constants";
 
-export const calculateReadingTime = (book: BookInfo): string | null => {
+export const calculateReadingTime = (
+  book: BookInfo,
+  readingWPM = READING_WPM
+): string | null => {
   // For books with listening duration
   if (book.listeningDuration && book.listeningDuration > 0) {
-    const minutes = book.listeningDuration / 60;
-    const words = AUDIOBOOK_AVG_WPM * minutes;
-    const readingMinutes = words / READING_WPM;
+    const readingMinutes =
+      (book.listeningDuration * AUDIOBOOK_AVG_WPM) / (60 * readingWPM);
     const hours = Math.floor(readingMinutes / 60);
     const mins = Math.round(readingMinutes % 60);
     return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
@@ -18,7 +20,7 @@ export const calculateReadingTime = (book: BookInfo): string | null => {
   //     if (pagesEdition && pagesEdition.pages) {
   //       const wordsPerPage = 275; // Average words per page
   //       const totalWords = pagesEdition.pages * wordsPerPage;
-  //       const readingMinutes = totalWords / READING_WPM;
+  //       const readingMinutes = totalWords / readingWPM;
   //       const hours = Math.floor(readingMinutes / 60);
   //       const mins = Math.round(readingMinutes % 60);
   //       return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;

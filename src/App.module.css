@@ -40,6 +40,40 @@
   font-weight: 600;
 }
 
+.readingSpeedControl {
+  margin-top: var(--spacing-6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-3);
+}
+
+.readingSpeedControl label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--color-gray-700);
+}
+
+.readingSpeedInput {
+  width: 100px;
+  padding: var(--spacing-2) var(--spacing-3);
+  border: 1px solid var(--color-gray-300);
+  border-radius: var(--radius-md);
+  font-size: 0.875rem;
+  text-align: center;
+  transition: var(--transition-colors);
+}
+
+.readingSpeedInput:focus {
+  outline: none;
+  border-color: var(--color-blue-500);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.readingSpeedInput:hover {
+  border-color: var(--color-gray-400);
+}
+
 .main {
   padding: var(--spacing-10) var(--spacing-5);
   max-width: 80rem;

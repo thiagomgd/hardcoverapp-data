@@ -5,13 +5,16 @@ import styles from "./BookDataDisplay.module.css";
 
 interface BookDataDisplayContentProps {
   data: HardcoverData;
+  readingSpeed: number;
 }
 interface BookDataDisplayProps {
   data?: HardcoverData;
+  readingSpeed: number;
 }
 
 const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
   data,
+  readingSpeed,
 }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [checksFilter, setChecksFilter] = useState<string>("none");
@@ -306,6 +309,7 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
             key={`${book.id}-${index}`}
             book={book}
             index={startIndex + index}
+            readingSpeed={readingSpeed}
           />
         ))}
       </div>
@@ -369,13 +373,18 @@ const BookDataDisplayContent: React.FC<BookDataDisplayContentProps> = ({
   );
 };
 
-const BookDataDisplay: React.FC<BookDataDisplayProps> = ({ data }) => {
+const BookDataDisplay: React.FC<BookDataDisplayProps> = ({
+  data,
+  readingSpeed,
+}) => {
   return (
     <div className={styles.wrapper}>
       <div className={styles.header}>
         <h2 className={styles.headerTitle}>Your Book Collection</h2>
       </div>
-      {data && <BookDataDisplayContent data={data} />}
+      {data && (
+        <BookDataDisplayContent data={data} readingSpeed={readingSpeed} />
+      )}
     </div>
   );
 };

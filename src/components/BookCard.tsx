@@ -8,9 +8,10 @@ import styles from "./BookCard.module.css";
 interface BookCardProps {
   book: BookInfo;
   index: number;
+  readingSpeed: number;
 }
 
-const BookCard: React.FC<BookCardProps> = ({ book, index }) => {
+const BookCard: React.FC<BookCardProps> = ({ book, index, readingSpeed }) => {
   return (
     <div key={`${book.id}-${index}`} className={styles.card}>
       <div className={styles.header}>
@@ -90,7 +91,7 @@ const BookCard: React.FC<BookCardProps> = ({ book, index }) => {
             </div>
             <div className={styles.metadata}>
               <strong>📚 Estimated reading time:</strong>{" "}
-              {calculateReadingTime(book)}
+              {calculateReadingTime(book, readingSpeed)}
             </div>
           </>
         )}
